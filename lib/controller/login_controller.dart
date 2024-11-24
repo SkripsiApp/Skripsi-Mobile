@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:skripsi_app/helper/dialog.dart';
 import 'package:skripsi_app/service/register_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class LoginController extends GetxController {
   final ApiService _apiService = ApiService();
@@ -18,6 +19,8 @@ class LoginController extends GetxController {
         // Simpan token ke local storage
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', response.data!.token);
+        DateTime expiryDate = JwtDecoder.getExpirationDate(response.data!.token);
+        await prefs.setString('token_expiry', expiryDate.toIso8601String());
         
         Get.offAllNamed('/home');
       } else {
