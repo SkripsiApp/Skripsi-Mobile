@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:skripsi_app/helper/dio_client.dart';
 import 'package:skripsi_app/model/register_model.dart';
+import 'package:skripsi_app/response/login_response.dart';
 import 'package:skripsi_app/response/product_response.dart';
 import 'package:skripsi_app/response/register_reposnse.dart';
 
@@ -24,6 +25,34 @@ class ApiService {
         );
       } else {
         return RegisterResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+        );
+      }
+    }
+  }
+
+  // Login method
+   Future<LoginResponse> login(String email, String password) async {
+    try {
+      final response = await _dio.post(
+        '/login',
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      return LoginResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return LoginResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+        );
+      } else {
+        return LoginResponse(
           status: false,
           message: 'Gagal terhubung ke server',
         );
