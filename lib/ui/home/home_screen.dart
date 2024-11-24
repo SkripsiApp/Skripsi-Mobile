@@ -224,7 +224,7 @@ class _HomePageState extends State<HomePage> {
             crossAxisSpacing: 16,
             mainAxisSpacing: 8,
             childAspectRatio: 0.9,
-            children: _controller.productList.map((product) {
+            children: _controller.productList.take(4).map((product) {
               return _buildProductCard(
                 product.name,
                 'Rp ${product.price}',
