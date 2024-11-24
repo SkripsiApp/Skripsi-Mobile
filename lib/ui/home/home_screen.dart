@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skripsi_app/controller/product_controller.dart';
 import 'package:get/get.dart';
+import 'package:skripsi_app/controller/user_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,6 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final ProductController _controller = Get.put(ProductController());
+  final ProfileController _profileController = Get.put(ProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -122,28 +124,44 @@ class _HomePageState extends State<HomePage> {
                 height: 100,
               ),
               const SizedBox(width: 24),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Poinku',
+              Obx(() {
+                if (_profileController.isLoading.value) {
+                  return const CircularProgressIndicator();
+                }
+                final userProfile = _profileController.userProfile.value;
+                if (userProfile == null) {
+                  return const Text(
+                    'Data tidak tersedia',
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w500,
                       fontSize: 15,
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    '125.000',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Poinku',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 20),
+                    Text(
+                      '${userProfile.point}',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         ),
