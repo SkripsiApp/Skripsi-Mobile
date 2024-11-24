@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:skripsi_app/helper/dio_client.dart';
 import 'package:skripsi_app/model/register_model.dart';
+import 'package:skripsi_app/response/product_response.dart';
 import 'package:skripsi_app/response/register_reposnse.dart';
 
 class ApiService {
@@ -25,6 +26,30 @@ class ApiService {
         return RegisterResponse(
           status: false,
           message: 'Gagal terhubung ke server',
+        );
+      }
+    }
+  }
+
+  // Fetch products method
+  Future<ProductResponse> getProducts() async {
+    try {
+      final response = await _dio.get('/products');
+
+      return ProductResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return ProductResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: [],
+        );
+      } else {
+        return ProductResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: [],
         );
       }
     }
