@@ -1,13 +1,16 @@
 import 'package:get/get.dart';
 import 'package:skripsi_app/helper/dialog.dart';
 import 'package:skripsi_app/model/product_model.dart';
-import 'package:skripsi_app/service/register_service.dart';
+import 'package:skripsi_app/service/service.dart';
 
 class ProductController extends GetxController {
   final ApiService _apiService = ApiService();
 
-  final isLoading = false.obs;
-  final productList = <Product>[].obs;
+  var isLoading = false.obs;
+  var isLoadingMore = false.obs;
+  var productList = <Product>[].obs;
+  var currentPage = 1.obs;
+  var lastPage = 1.obs;
 
   @override
   void onInit() {
@@ -15,14 +18,23 @@ class ProductController extends GetxController {
     fetchProducts();
   }
 
-  Future<void> fetchProducts() async {
+  Future<void> fetchProducts({String? search, int? page}) async {
     try {
-      isLoading.value = true;
+      if (page == null) {
+        isLoading.value = true;
+        productList.clear();
+        currentPage.value = 1;
+      } else {
+        isLoadingMore.value = true;
+      }
 
-      final response = await _apiService.getProducts();
+      final response =
+          await _apiService.getProducts(search: search, page: page ?? 1);
 
       if (response.status) {
-        productList.value = response.data;
+        productList.addAll(response.data);
+        currentPage.value = response.pagination.currentPage;
+        lastPage.value = response.pagination.lastPage;
       } else {
         CustomDialog.showError(
           title: 'Gagal',
@@ -34,6 +46,13 @@ class ProductController extends GetxController {
       }
     } finally {
       isLoading.value = false;
+      isLoadingMore.value = false;
+    }
+  }
+
+  void loadMoreProducts() {
+    if (currentPage.value < lastPage.value && !isLoadingMore.value) {
+      fetchProducts(page: currentPage.value + 1);
     }
   }
 }

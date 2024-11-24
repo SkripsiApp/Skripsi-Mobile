@@ -11,8 +11,6 @@ class DioClient {
   DioClient._internal() {
     dio = Dio(BaseOptions(
       baseUrl: 'https://skripsi-api-859835962101.asia-southeast2.run.app',
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
       contentType: 'application/json',
     ));
 

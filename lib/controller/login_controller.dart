@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:skripsi_app/helper/dialog.dart';
-import 'package:skripsi_app/service/register_service.dart';
+import 'package:skripsi_app/service/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
