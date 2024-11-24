@@ -27,6 +27,7 @@ class ProfileController extends GetxController {
         fetchProfile();
       } else {
         await prefs.remove('token');
+        await prefs.remove('token_expiry');
         userProfile.value = null;
       }
     } else {
