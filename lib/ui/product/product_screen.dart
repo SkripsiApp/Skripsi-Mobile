@@ -170,7 +170,6 @@ class _ProductScreenState extends State<ProductScreen> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: Card(
-        color: const Color.fromARGB(255, 239, 236, 236),
         elevation: 8,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
