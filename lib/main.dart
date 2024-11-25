@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: const LoginScreen(),
+      home: const HomePage(),
       getPages: AppRoutes.appRoutes,
     );
   }

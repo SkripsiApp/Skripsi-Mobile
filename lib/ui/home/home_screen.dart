@@ -18,78 +18,76 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 200,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/img/header.png'),
-                      fit: BoxFit.fill,
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 200,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/img/header.png'),
+                        fit: BoxFit.fill,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: SizedBox(
-                    height: 56,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'ALNI ACCESSORIES',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.shopping_cart_outlined),
-                              color: Colors.black,
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.person_outline),
-                              color: Colors.black,
-                              onPressed: () {},
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+              ),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SizedBox(
+                      height: 56,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const SizedBox(height: 60),
-                          _buildPointsCard(),
-                          const SizedBox(height: 24),
-                          _buildCategoriesSection(),
-                          const SizedBox(height: 24),
-                          _buildBestSellerSection(),
+                          const Text(
+                            'ALNI ACCESSORIES',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.shopping_cart_outlined),
+                                color: Colors.black,
+                                onPressed: () {},
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.person_outline),
+                                color: Colors.black,
+                                onPressed: () {},
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 60),
+                        _buildPointsCard(),
+                        const SizedBox(height: 24),
+                        _buildCategoriesSection(),
+                        const SizedBox(height: 24),
+                        _buildBestSellerSection(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
