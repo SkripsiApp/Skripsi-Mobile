@@ -242,7 +242,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFA7E6FF),
+                      color: const Color.fromARGB(255, 120, 211, 248),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
