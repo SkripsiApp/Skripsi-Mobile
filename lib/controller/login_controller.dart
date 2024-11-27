@@ -19,9 +19,16 @@ class LoginController extends GetxController {
         // Simpan token ke local storage
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', response.data!.token);
+
+        await prefs.setString('user_id', response.data!.id);
+
         DateTime expiryDate = JwtDecoder.getExpirationDate(response.data!.token);
         await prefs.setString('token_expiry', expiryDate.toIso8601String());
         
+        // Muat keranjang berdasarkan user
+        final cartKey = 'cart_${response.data!.id}';
+        prefs.getString(cartKey);
+
         Get.offAllNamed('/home');
       } else {
         CustomDialog.showError(
