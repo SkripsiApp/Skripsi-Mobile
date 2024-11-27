@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:skripsi_app/helper/dialog.dart';
-import 'package:skripsi_app/service/register_service.dart';
+import 'package:skripsi_app/service/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
@@ -19,9 +19,16 @@ class LoginController extends GetxController {
         // Simpan token ke local storage
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', response.data!.token);
+
+        await prefs.setString('user_id', response.data!.id);
+
         DateTime expiryDate = JwtDecoder.getExpirationDate(response.data!.token);
         await prefs.setString('token_expiry', expiryDate.toIso8601String());
         
+        // Muat keranjang berdasarkan user
+        final cartKey = 'cart_${response.data!.id}';
+        prefs.getString(cartKey);
+
         Get.offAllNamed('/home');
       } else {
         CustomDialog.showError(

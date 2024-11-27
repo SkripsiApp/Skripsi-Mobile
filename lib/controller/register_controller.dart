@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:skripsi_app/helper/dialog.dart';
 import 'package:skripsi_app/model/register_model.dart';
-import 'package:skripsi_app/service/register_service.dart';
+import 'package:skripsi_app/service/service.dart';
 
 class RegisterController extends GetxController {
   final ApiService _apiService = ApiService();

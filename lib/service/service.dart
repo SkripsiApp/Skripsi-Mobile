@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:skripsi_app/helper/dio_client.dart';
 import 'package:skripsi_app/model/register_model.dart';
-import 'package:skripsi_app/model/user_model.dart';
 import 'package:skripsi_app/response/login_response.dart';
 import 'package:skripsi_app/response/product_response.dart';
 import 'package:skripsi_app/response/register_reposnse.dart';
@@ -98,9 +97,16 @@ class ApiService {
   }
 
   // Fetch products method
-  Future<ProductResponse> getProducts() async {
+  Future<ProductResponse> getProducts({String? search, int? page}) async {
     try {
-      final response = await _dio.get('/products');
+      final response = await _dio.get(
+        '/products',
+        queryParameters: {
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (page != null) 'page': page,
+          'limit': 10,
+        },
+      );
 
       return ProductResponse.fromJson(response.data);
     } on DioException catch (e) {
@@ -110,14 +116,39 @@ class ApiService {
           message:
               e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
           data: [],
+          pagination: Pagination(
+            limit: 0,
+            currentPage: 0,
+            lastPage: 0,
+          ),
         );
       } else {
         return ProductResponse(
           status: false,
           message: 'Gagal terhubung ke server',
           data: [],
+          pagination: Pagination(
+            limit: 0,
+            currentPage: 0,
+            lastPage: 0,
+          ),
         );
       }
+    }
+  }
+
+  // Fetch product detail method
+  Future<ProductDetailResponse> getProductDetail(String productId) async {
+    try {
+      final response = await _dio.get('/products/$productId');
+
+      if (response.statusCode == 200) {
+        return ProductDetailResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load product detail');
+      }
+    } on DioException catch (e) {
+      throw Exception('Failed to load product detail: ${e.message}');
     }
   }
 }
