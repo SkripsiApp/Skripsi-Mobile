@@ -3,7 +3,6 @@ import 'package:skripsi_app/controller/product_controller.dart';
 import 'package:get/get.dart';
 import 'package:skripsi_app/helper/capitalize.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
-import 'package:skripsi_app/ui/product/detail_products.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});

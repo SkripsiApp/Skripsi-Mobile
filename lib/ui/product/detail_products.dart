@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skripsi_app/controller/product_controller.dart';
 import 'package:get/get.dart';
+import 'package:skripsi_app/helper/cart.dart';
 
 class DetailProductScreen extends StatefulWidget {
   const DetailProductScreen({super.key});
@@ -502,7 +503,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                             onPressed: selectedSize.isEmpty
                                 ? null
                                 : () {
-                                    
+                                    addToCart(product, selectedSize);
                                   },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF3ABEF9),
