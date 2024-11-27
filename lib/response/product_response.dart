@@ -45,3 +45,23 @@ class Pagination {
     );
   }
 }
+
+class ProductDetailResponse {
+  final bool status;
+  final String message;
+  final Product data;
+
+  ProductDetailResponse({
+    required this.status,
+    required this.message,
+    required this.data,
+  });
+
+  factory ProductDetailResponse.fromJson(Map<String, dynamic> json) {
+    return ProductDetailResponse(
+      status: json['status'],
+      message: json['message'],
+      data: Product.fromJson(json['data']),
+    );
+  }
+}

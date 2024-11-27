@@ -11,6 +11,7 @@ class ProductController extends GetxController {
   var productList = <Product>[].obs;
   var currentPage = 1.obs;
   var lastPage = 1.obs;
+  var productDetail = Rxn<Product>();
 
   @override
   void onInit() {
@@ -47,6 +48,36 @@ class ProductController extends GetxController {
     } finally {
       isLoading.value = false;
       isLoadingMore.value = false;
+    }
+  }
+
+  Future<void> fetchProductDetail(String productId) async {
+    try {
+      isLoading.value = true;
+      final response = await _apiService.getProductDetail(productId);
+
+      if (response.status) {
+        productDetail.value = response.data;
+        print('Product data: ${response.data}');
+      } else {
+        CustomDialog.showError(
+          title: 'Gagal',
+          message: response.message,
+          onConfirm: () {
+            Get.back();
+          },
+        );
+      }
+    } catch (e) {
+      CustomDialog.showError(
+        title: 'Gagal',
+        message: e.toString(),
+        onConfirm: () {
+          Get.back();
+        },
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 

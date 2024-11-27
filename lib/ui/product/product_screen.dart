@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:skripsi_app/controller/product_controller.dart';
 import 'package:get/get.dart';
 import 'package:skripsi_app/helper/capitalize.dart';
+import 'package:skripsi_app/routes/routes_named.dart';
+import 'package:skripsi_app/ui/product/detail_products.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -161,111 +163,117 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildProductCard(
+    String id,
     String title,
     String price,
     String imageUrl,
     String sold,
     String category,
   ) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Card(
-        elevation: 8,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.network(
-                imageUrl,
-                width: double.infinity,
-                height: 120,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(RoutesNamed.productDetail, arguments: id);
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Card(
+          elevation: 8,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.network(
+                  imageUrl,
+                  width: double.infinity,
                   height: 120,
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: Icon(Icons.image, size: 50, color: Colors.grey),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 120,
+                    color: Colors.grey[200],
+                    child: const Center(
+                      child: Icon(Icons.image, size: 50, color: Colors.grey),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Text(
-                title,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
-                children: [
-                  Image.asset(
-                    'assets/img/price.png',
-                    width: 20,
-                    height: 20,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.monetization_on, size: 20),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    price,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/img/price.png',
+                      width: 20,
+                      height: 20,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.monetization_on, size: 20),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 120, 211, 248),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      category,
+                    const SizedBox(width: 4),
+                    Text(
+                      price,
                       style: const TextStyle(
+                        fontWeight: FontWeight.bold,
                         fontSize: 12,
-                        color: Colors.white,
                       ),
                     ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    sold,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-          ],
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 120, 211, 248),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        category,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      sold,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
@@ -296,6 +304,7 @@ class _ProductScreenState extends State<ProductScreen> {
           }
           final product = _controller.productList[index];
           return _buildProductCard(
+            product.id,
             product.name,
             'Rp ${product.price}',
             product.image,

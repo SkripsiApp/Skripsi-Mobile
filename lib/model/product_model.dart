@@ -40,11 +40,13 @@ class Product {
 class ProductSize {
   final String id;
   final String size;
+  final String description;
   final int stock;
 
   ProductSize({
     required this.id,
     required this.size,
+    required this.description,
     required this.stock,
   });
 
@@ -52,6 +54,7 @@ class ProductSize {
     return ProductSize(
       id: json['id'],
       size: json['size'],
+      description: json['description'],
       stock: json['stock'],
     );
   }

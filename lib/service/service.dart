@@ -136,4 +136,19 @@ class ApiService {
       }
     }
   }
+
+  // Fetch product detail method
+  Future<ProductDetailResponse> getProductDetail(String productId) async {
+    try {
+      final response = await _dio.get('/products/$productId');
+
+      if (response.statusCode == 200) {
+        return ProductDetailResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load product detail');
+      }
+    } on DioException catch (e) {
+      throw Exception('Failed to load product detail: ${e.message}');
+    }
+  }
 }
