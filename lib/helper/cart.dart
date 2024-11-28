@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skripsi_app/helper/dialog.dart';
+import 'package:skripsi_app/model/cart_model.dart';
 import 'package:skripsi_app/model/product_model.dart';
 
 void addToCart(Product product, String selectedSize) async {
@@ -22,7 +23,6 @@ void addToCart(Product product, String selectedSize) async {
     return;
   }
 
-  // Ambil ID pengguna dari profil atau token
   final userId = prefs.getString('user_id');
   if (userId == null) {
     CustomDialog.showError(
@@ -35,7 +35,6 @@ void addToCart(Product product, String selectedSize) async {
     return;
   }
 
-  // Ambil data keranjang dari local storage
   final cartKey = 'cart_$userId';
   final cartData = prefs.getString(cartKey);
   List<Map<String, dynamic>> cart = cartData != null
@@ -62,7 +61,11 @@ void addToCart(Product product, String selectedSize) async {
     });
   }
 
+  // Simpan keranjang setelah ditambahkan item
   await prefs.setString(cartKey, jsonEncode(cart));
+
+  // Log untuk memverifikasi apakah data keranjang berhasil disimpan
+  print('Cart data saved: ${jsonEncode(cart)}');
 
   CustomDialog.showSuccess(
     title: 'Berhasil',
@@ -72,3 +75,40 @@ void addToCart(Product product, String selectedSize) async {
     },
   );
 }
+
+
+Future<List<CartItem>> getCartItems() async {
+  final prefs = await SharedPreferences.getInstance();
+  final userId = prefs.getString('user_id');
+  if (userId == null) {
+    return [];
+  }
+
+  final cartKey = 'cart_$userId';
+  final cartData = prefs.getString(cartKey);
+
+  if (cartData == null || cartData.isEmpty) {
+    print('Cart data is empty for user: $userId');
+    return [];
+  }
+
+  try {
+    // Explicitly parse the JSON string
+    final List<dynamic> cartList = jsonDecode(cartData);
+    return cartList
+        .map((item) => CartItem(
+              id: item['productId'],
+              name: item['productName'],
+              size: item['size'],
+              price: (item['price'] as num).toDouble(),
+              quantity: item['quantity'],
+              image: item['image'] ?? '',
+            ))
+        .toList();
+  } catch (e) {
+    print("Error decoding cart data: $e");
+    return [];
+  }
+}
+
+
