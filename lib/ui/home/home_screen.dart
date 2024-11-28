@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skripsi_app/controller/product_controller.dart';
 import 'package:get/get.dart';
 import 'package:skripsi_app/controller/user_controller.dart';
+import 'package:skripsi_app/routes/routes_named.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -218,7 +219,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Get.toNamed(RoutesNamed.product);
+              },
               child: const Text(
                 'Lihat Semua',
                 style: TextStyle(color: Colors.blue),
@@ -242,6 +245,7 @@ class _HomePageState extends State<HomePage> {
             childAspectRatio: 0.9,
             children: _controller.productList.take(4).map((product) {
               return _buildProductCard(
+                product.id,
                 product.name,
                 'Rp ${product.price}',
                 product.image,
@@ -297,76 +301,84 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductCard(
+    String id,
     String title,
     String price,
     String imageUrl,
     String sold,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.network(
-              imageUrl,
-              width: double.infinity,
-              height: 120,
-              fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(RoutesNamed.productDetail, arguments: id);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
+              child: Image.network(
+                imageUrl,
+                width: double.infinity,
+                height: 120,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  overflow: TextOverflow.ellipsis,
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                Text(
+                  sold,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Row(
+              children: [
+                // Logo harga
+                Image.asset(
+                  'assets/img/price.png',
+                  width: 24,
+                  height: 24,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  price,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
                 ),
-              ),
-              Text(
-                sold,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 10,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: Row(
-            children: [
-              // Logo harga
-              Image.asset(
-                'assets/img/price.png',
-                width: 24,
-                height: 24,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                price,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
