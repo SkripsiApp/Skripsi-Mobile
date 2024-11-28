@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: const ProductScreen(),
+      home: const HomePage(),
       getPages: AppRoutes.appRoutes,
     );
   }
