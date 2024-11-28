@@ -7,6 +7,7 @@ import 'package:skripsi_app/ui/product/product_screen.dart';
 import 'package:skripsi_app/ui/register/register_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
+import 'package:skripsi_app/ui/voucher/voucher_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: const ProductScreen(),
+      home: const VoucherScreen(),
       getPages: AppRoutes.appRoutes,
     );
   }
