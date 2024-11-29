@@ -20,23 +20,15 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(50.0),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
-          child: AppBar(
-            title: const Text('Product'),
-            centerTitle: true,
-            backgroundColor: const Color(0xFF3ABEF9),
-            elevation: 0,
-            titleTextStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+      appBar: AppBar(
+        title: const Text('Product'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF3ABEF9),
+        elevation: 0,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
       body: Column(
@@ -142,7 +134,7 @@ class _ProductScreenState extends State<ProductScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.blue : Colors.grey[300],
+            color: isSelected ? const Color(0xFF3ABEF9) : Colors.grey[300],
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(

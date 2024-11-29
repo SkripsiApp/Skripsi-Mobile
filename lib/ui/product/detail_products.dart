@@ -132,7 +132,14 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                         ),
                       ],
                     ),
-                    const Divider(thickness: 1, height: 32),
+                    Container(
+                      height: 5,
+                      margin: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD9D9D9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     // Daftar ukuran ditampilkan di bawah garis
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,7 +188,14 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                         ),
                       ],
                     ),
-                    const Divider(thickness: 1, height: 32),
+                    Container(
+                      height: 5,
+                      margin: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD9D9D9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     const Text(
                       'Deskripsi',
                       style: TextStyle(
