@@ -1,4 +1,5 @@
 import 'package:skripsi_app/model/product_model.dart';
+import 'package:skripsi_app/response/pagination_response.dart';
 
 class ProductResponse {
   final bool status;
@@ -22,26 +23,6 @@ class ProductResponse {
       message: json['message'],
       data: productList,
       pagination: Pagination.fromJson(json['pagination']),
-    );
-  }
-}
-
-class Pagination {
-  final int limit;
-  final int currentPage;
-  final int lastPage;
-
-  Pagination({
-    required this.limit,
-    required this.currentPage,
-    required this.lastPage,
-  });
-
-  factory Pagination.fromJson(Map<String, dynamic> json) {
-    return Pagination(
-      limit: json['limit'],
-      currentPage: json['current_page'],
-      lastPage: json['last_page'],
     );
   }
 }

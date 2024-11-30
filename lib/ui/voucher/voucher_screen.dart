@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:skripsi_app/controller/voucher_controller.dart';
 
 class VoucherScreen extends StatefulWidget {
   const VoucherScreen({super.key});
@@ -8,83 +10,88 @@ class VoucherScreen extends StatefulWidget {
 }
 
 class _VoucherScreenState extends State<VoucherScreen> {
+  final VoucherController voucherController = Get.put(VoucherController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Voucher',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.lightBlue,
+        title: const Text('Voucher'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF3ABEF9),
         elevation: 0,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Image.asset(
-                  'assets/img/voucher2.png',
-                  width: 70,
-                  height: 70,
-                ),
-                const SizedBox(width: 14),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '3',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF3ABEF9),
+      body: Obx(() {
+        if (voucherController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Image.asset(
+                    'assets/img/voucher2.png',
+                    width: 70,
+                    height: 70,
+                  ),
+                  const SizedBox(width: 14),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${voucherController.productList.length}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF3ABEF9),
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Jumlah Voucher',
-                      style: TextStyle(
-                        color: Colors.grey,
+                      const Text(
+                        'Jumlah Voucher',
+                        style: TextStyle(
+                          color: Colors.grey,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.only(top: 0, left: 16, right: 16),
-              children: [
-                _buildVoucherCard(
-                  'Promo Diskon 30%',
-                  'Diskon 30% untuk semua aksesoris titanium. Dapatkan sekarang!',
-                  'GELANGKU2024',
-                ),
-                const SizedBox(height: 16),
-                _buildVoucherCard(
-                  'Promo Diskon 10%',
-                  'Diskon 10% untuk semua aksesoris titanium. Dapatkan sekarang!',
-                  'PROMO1212',
-                ),
-                const SizedBox(height: 16),
-                _buildVoucherCard(
-                  'Promo Diskon 20%',
-                  'Diskon 20% untuk semua aksesoris titanium. Dapatkan sekarang!',
-                  'DISKON20',
-                ),
-                const SizedBox(height: 16),
-                _buildVoucherCard(
-                  'Promo Diskon 20%',
-                  'Diskon 20% untuk semua aksesoris titanium. Dapatkan sekarang!',
-                  'DISKON20',
-                ),
-              ],
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: voucherController.productList.length,
+                itemBuilder: (context, index) {
+                  final voucher = voucherController.productList[index];
+                  return Column(
+                    children: [
+                      _buildVoucherCard(
+                        voucher.name,
+                        voucher.description,
+                        voucher.id,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
+            if (voucherController.isLoadingMore.value)
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+          ],
+        );
+      }),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: 3,
@@ -126,14 +133,14 @@ class _VoucherScreenState extends State<VoucherScreen> {
         padding: const EdgeInsets.all(16),
         child: Stack(
           children: [
-             Positioned(
+            Positioned(
               top: -30,
               right: -40,
-                child: Image.asset(
-                  'assets/img/diamond.png',
-                  width: 200,
-                  height: 200,
-                ),
+              child: Image.asset(
+                'assets/img/diamond.png',
+                width: 200,
+                height: 200,
+              ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,5 +196,4 @@ class _VoucherScreenState extends State<VoucherScreen> {
       ),
     );
   }
-
 }
