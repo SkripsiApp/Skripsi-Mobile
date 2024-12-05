@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:skripsi_app/routes/routes.dart';
 import 'package:skripsi_app/ui/cart/cart_screen.dart';
-import 'package:skripsi_app/ui/chatbot/chabot_screen.dart';
+import 'package:skripsi_app/ui/chatbot/chatbot_screen.dart';
 import 'package:skripsi_app/ui/home/home_screen.dart';
+import 'package:skripsi_app/ui/home/home_state.dart';
 import 'package:skripsi_app/ui/login/login_screen.dart';
 import 'package:skripsi_app/ui/product/detail_products.dart';
 import 'package:skripsi_app/ui/product/product_screen.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: const ChatbotScreen(),
+      home: const HomeState(),
       getPages: AppRoutes.appRoutes,
     );
   }

@@ -38,7 +38,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             ),
           ),
           _buildInputField(),
-          _buildBottomNavigationBar(),
         ],
       ),
     );
@@ -162,6 +161,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                   vertical: 10,
                 ),
               ),
+              style: const TextStyle(
+                decoration: TextDecoration.none,
+                decorationThickness: 0,
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -177,35 +180,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      currentIndex: 2,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Beranda',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.shopping_cart),
-          label: 'Produk',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble),
-          label: 'Chatbot',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.card_giftcard),
-          label: 'Voucher',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: 'Riwayat',
-        ),
-      ],
     );
   }
 }
