@@ -1,11 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skripsi_app/controller/product_controller.dart';
 import 'package:skripsi_app/helper/cart.dart';
-import 'package:skripsi_app/helper/stok_cache.dart';
 import 'package:skripsi_app/model/cart_model.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
 
@@ -123,7 +121,7 @@ class _CartScreenState extends State<CartScreen> {
                     onPressed: items.isEmpty
                         ? null
                         : () {
-                            Get.toNamed(RoutesNamed.checkout);
+                            Get.toNamed(RoutesNamed.checkout, arguments: items);
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF3ABEF9),
