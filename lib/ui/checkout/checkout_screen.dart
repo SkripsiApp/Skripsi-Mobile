@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:skripsi_app/model/cart_model.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -8,6 +10,7 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+
   String? selectedShippingMethod;
   final List<String> shippingMethods = [
     "JNE - Regular",
@@ -20,6 +23,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   double shippingCost = 15000;
   double discount = 20000;
   int availablePoints = 5000;
+
+  List<CartItem> items = [];
+
+  @override
+  void initState() {
+    super.initState();
+    items = Get.arguments as List<CartItem>;
+    totalPrice =
+        items.fold(0, (sum, item) => sum + (item.price * item.quantity));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,11 +69,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               title: "Produk",
               content: Column(
                 children: [
-                  _buildProductCard("Sepatu Sneakers", "Rp 250.000", 1,
-                      "http://res.cloudinary.com/djmyxwhgu/image/upload/v1732641611/products/Gelang%20Emas.jpg"),
-                  const SizedBox(height: 16),
-                  _buildProductCard("Kemeja Flanel", "Rp 150.000", 2,
-                      "http://res.cloudinary.com/djmyxwhgu/image/upload/v1732641611/products/Gelang%20Emas.jpg"),
+                  ...items.map((item) {
+                    return Column(
+                      children: [
+                        _buildProductCard(item.name, 'Rp ${item.price.toStringAsFixed(0)}', item.quantity, item.image),
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  }),
                   Container(
                     height: 1,
                     margin: const EdgeInsets.symmetric(vertical: 16),
