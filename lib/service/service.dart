@@ -2,10 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:skripsi_app/helper/dio_client.dart';
 import 'package:skripsi_app/model/register_model.dart';
 import 'package:skripsi_app/response/login_response.dart';
+import 'package:skripsi_app/response/pagination_response.dart';
 import 'package:skripsi_app/response/product_response.dart';
 import 'package:skripsi_app/response/register_reposnse.dart';
 import 'package:skripsi_app/response/user_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skripsi_app/response/voucher_response.dart';
 
 class ApiService {
   final Dio _dio = DioClient().dio;
@@ -34,8 +36,8 @@ class ApiService {
     }
   }
 
-   // Login method
-   Future<LoginResponse> login(String email, String password) async {
+  // Login method
+  Future<LoginResponse> login(String email, String password) async {
     try {
       final response = await _dio.post(
         '/login',
@@ -149,6 +151,68 @@ class ApiService {
       }
     } on DioException catch (e) {
       throw Exception('Failed to load product detail: ${e.message}');
+    }
+  }
+
+  // Fetch voucher method
+  Future<VoucherResponse> getVouchers({String? search, int? page}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return VoucherResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: [],
+        pagination: Pagination(
+          limit: 0,
+          currentPage: 0,
+          lastPage: 0,
+        ),
+      );
+    }
+
+    try {
+      final response = await _dio.get(
+        '/voucher',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        queryParameters: {
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (page != null) 'page': page,
+          'limit': 10,
+        },
+      );
+
+      return VoucherResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return VoucherResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: [],
+          pagination: Pagination(
+            limit: 0,
+            currentPage: 0,
+            lastPage: 0,
+          ),
+        );
+      } else {
+        return VoucherResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: [],
+          pagination: Pagination(
+            limit: 0,
+            currentPage: 0,
+            lastPage: 0,
+          ),
+        );
+      }
     }
   }
 }

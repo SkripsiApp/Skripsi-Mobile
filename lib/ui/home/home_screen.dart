@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:skripsi_app/controller/product_controller.dart';
 import 'package:get/get.dart';
 import 'package:skripsi_app/controller/user_controller.dart';
+import 'package:skripsi_app/helper/cart.dart';
+import 'package:skripsi_app/helper/dialog.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,83 +17,132 @@ class _HomePageState extends State<HomePage> {
   final ProductController _controller = Get.put(ProductController());
   final ProfileController _profileController = Get.put(ProfileController());
 
+  int _cartItemCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCartItemCount();
+  }
+
+  Future<void> _loadCartItemCount() async {
+    final cartItems = await getCartItems();
+    setState(() {
+      _cartItemCount = cartItems.length;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Stack(
+    return SingleChildScrollView(
+      child: Stack(
+        children: [
+          Column(
             children: [
-              Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('assets/img/header.png'),
-                        fit: BoxFit.fill,
-                      ),
-                    ),
+              Container(
+                width: double.infinity,
+                height: 200,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/img/header.png'),
+                    fit: BoxFit.fill,
                   ),
-                ],
+                ),
               ),
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: SizedBox(
-                      height: 56,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ],
+          ),
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: SizedBox(
+                  height: 56,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'ALNI ACCESSORIES',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Row(
                         children: [
-                          const Text(
-                            'ALNI ACCESSORIES',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Row(
+                          Stack(
+                            clipBehavior: Clip.none,
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.shopping_cart_outlined),
                                 color: Colors.black,
-                                onPressed: () {},
+                                onPressed: () {
+                                  final user =
+                                      _profileController.userProfile.value;
+                                  if (user != null) {
+                                    Get.toNamed(RoutesNamed.cart);
+                                  } else {
+                                    CustomDialog.showError(
+                                      title: 'Login Diperlukan',
+                                      message: 'Silahkan login terlebih dahulu',
+                                      onConfirm: () {
+                                        Get.toNamed(RoutesNamed.login);
+                                      },
+                                    );
+                                  }
+                                },
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.person_outline),
-                                color: Colors.black,
-                                onPressed: () {},
-                              ),
+                              if (_cartItemCount > 0)
+                                Positioned(
+                                  top: -4,
+                                  right: -4,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Text(
+                                      '$_cartItemCount',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                             ],
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.person_outline),
+                            color: Colors.black,
+                            onPressed: () {},
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 60),
-                        _buildPointsCard(),
-                        const SizedBox(height: 24),
-                        _buildCategoriesSection(),
-                        const SizedBox(height: 24),
-                        _buildBestSellerSection(),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 60),
+                    _buildPointsCard(),
+                    const SizedBox(height: 24),
+                    _buildCategoriesSection(),
+                    const SizedBox(height: 24),
+                    _buildBestSellerSection(),
+                  ],
+                ),
               ),
             ],
           ),
-        ),
+        ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
@@ -241,8 +292,8 @@ class _HomePageState extends State<HomePage> {
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 2,
             crossAxisSpacing: 16,
-            mainAxisSpacing: 8,
-            childAspectRatio: 0.9,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.85,
             children: _controller.productList.take(4).map((product) {
               return _buildProductCard(
                 product.id,
@@ -250,6 +301,7 @@ class _HomePageState extends State<HomePage> {
                 'Rp ${product.price}',
                 product.image,
                 '${product.sold} Terjual',
+                product.category,
               );
             }).toList(),
           );
@@ -306,110 +358,114 @@ class _HomePageState extends State<HomePage> {
     String price,
     String imageUrl,
     String sold,
+    String category,
   ) {
     return GestureDetector(
       onTap: () {
         Get.toNamed(RoutesNamed.productDetail, arguments: id);
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.network(
-                imageUrl,
-                width: double.infinity,
-                height: 120,
-                fit: BoxFit.cover,
-              ),
-            ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Card(
+          elevation: 8,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.network(
+                  imageUrl,
+                  width: double.infinity,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 120,
+                    color: Colors.grey[200],
+                    child: const Center(
+                      child: Icon(Icons.image, size: 50, color: Colors.grey),
                     ),
                   ),
                 ),
-                Text(
-                  sold,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Row(
-              children: [
-                // Logo harga
-                Image.asset(
-                  'assets/img/price.png',
-                  width: 24,
-                  height: 24,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  price,
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/img/price.png',
+                      width: 20,
+                      height: 20,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.monetization_on, size: 20),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      price,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 120, 211, 248),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        category,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      sold,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
           ),
-        ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: 0,
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.blue,
-      unselectedItemColor: Colors.grey,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Beranda',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.shopping_bag),
-          label: 'Produk',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble),
-          label: 'Chatbot',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.card_giftcard),
-          label: 'Voucher',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: 'Riwayat',
-        ),
-      ],
     );
   }
 }
