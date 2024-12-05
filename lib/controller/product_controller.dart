@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:skripsi_app/helper/dialog.dart';
+import 'package:skripsi_app/helper/stok_cache.dart';
 import 'package:skripsi_app/model/product_model.dart';
 import 'package:skripsi_app/service/service.dart';
 
@@ -80,6 +81,40 @@ class ProductController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<int> getStock(String productId, String size) async {
+    try {
+      // Cek stok di cache terlebih dahulu
+      int cachedStock = productStockCache.getStock(productId, size);
+      if (cachedStock > 0) {
+        return cachedStock;
+      }
+
+      final response = await _apiService.getProductDetail(productId);
+      if (response.status) {
+        for (var productSize in response.data.productSize) {
+          ProductStockCache.addStock(
+            productId,
+            productSize.size,
+            productSize.stock,
+          );
+        }
+
+        final productSize = response.data.productSize.firstWhere(
+          (sizeData) => sizeData.size == size,
+          orElse: () =>
+              ProductSize(id: '', size: '', description: '', stock: 0),
+        );
+
+        return productSize.stock;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 0;
+    }
+  }
+
 
   void loadMoreProducts() {
     if (currentPage.value < lastPage.value && !isLoadingMore.value) {

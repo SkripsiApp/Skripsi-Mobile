@@ -5,4 +5,5 @@ abstract class RoutesNamed {
   static const String product = '/products';
   static const String productDetail = '/products-detail';
   static const String cart = '/cart';
+  static const String checkout = '/checkout';
 }

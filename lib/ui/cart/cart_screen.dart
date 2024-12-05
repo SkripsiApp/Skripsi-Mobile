@@ -1,9 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skripsi_app/controller/product_controller.dart';
 import 'package:skripsi_app/helper/cart.dart';
 import 'package:skripsi_app/model/cart_model.dart';
+import 'package:skripsi_app/routes/routes_named.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -13,6 +15,8 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  final ProductController _controller = Get.put(ProductController());
+
   List<CartItem> items = [];
 
   Future<void> _loadCartItems() async {
@@ -114,7 +118,11 @@ class _CartScreenState extends State<CartScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: items.isEmpty
+                        ? null
+                        : () {
+                            Get.toNamed(RoutesNamed.checkout, arguments: items);
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF3ABEF9),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -150,7 +158,7 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
-Widget _buildCartItem({
+  Widget _buildCartItem({
     required CartItem item,
     required Function(int) onQuantityChanged,
     required VoidCallback onDelete,
@@ -234,7 +242,8 @@ Widget _buildCartItem({
                                 }
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 child: Text(
                                   '-',
                                   style: TextStyle(
@@ -261,11 +270,28 @@ Widget _buildCartItem({
                             child: InkWell(
                               borderRadius: const BorderRadius.horizontal(
                                   right: Radius.circular(20)),
-                              onTap: () {
-                                onQuantityChanged(item.quantity + 1);
+                              onTap: () async {
+                                // Ambil stok produk berdasarkan ukuran dari API
+                                final stock = await _controller.getStock(
+                                    item.id, item.size);
+                                if (item.quantity < stock) {
+                                  onQuantityChanged(item.quantity + 1);
+                                } else {
+                                  // Tampilkan pesan jika stok habis
+                                  Get.snackbar(
+                                    'Perhatian',
+                                    'Stok produk tidak cukup.',
+                                    snackPosition: SnackPosition.TOP,
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white,
+                                    margin: const EdgeInsets.only(top: 20.0),
+                                    snackStyle: SnackStyle.FLOATING,
+                                  );
+                                }
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 child: Text(
                                   '+',
                                   style: TextStyle(
@@ -296,4 +322,3 @@ Widget _buildCartItem({
     );
   }
 }
-
