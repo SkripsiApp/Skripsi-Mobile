@@ -4,4 +4,5 @@ abstract class RoutesNamed {
   static const String home = '/home';
   static const String product = '/products';
   static const String productDetail = '/products-detail';
+  static const String cart = '/cart';
 }
