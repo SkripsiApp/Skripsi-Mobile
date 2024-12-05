@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skripsi_app/routes/routes.dart';
 import 'package:skripsi_app/ui/cart/cart_screen.dart';
+import 'package:skripsi_app/ui/checkout/checkout_screen.dart';
 import 'package:skripsi_app/ui/chatbot/chatbot_screen.dart';
 import 'package:skripsi_app/ui/home/home_screen.dart';
 import 'package:skripsi_app/ui/home/home_state.dart';
