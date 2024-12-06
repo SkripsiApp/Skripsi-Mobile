@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:skripsi_app/controller/user_controller.dart';
 import 'package:skripsi_app/helper/dialog.dart';
 import 'package:skripsi_app/service/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,12 +25,13 @@ class LoginController extends GetxController {
 
         DateTime expiryDate = JwtDecoder.getExpirationDate(response.data!.token);
         await prefs.setString('token_expiry', expiryDate.toIso8601String());
+
+        ProfileController profileController = Get.find();
+        profileController.checkLoginStatus();
         
         // Muat keranjang berdasarkan user
-        final cartKey = 'cart_${response.data!.id}';
-        prefs.getString(cartKey);
-
-        Get.offAllNamed('/home');
+        // final cartKey = 'cart_${response.data!.id}';
+        // prefs.getString(cartKey);
       } else {
         CustomDialog.showError(
           title: 'Gagal',

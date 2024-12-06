@@ -1,17 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:skripsi_app/routes/routes.dart';
-import 'package:skripsi_app/ui/cart/cart_screen.dart';
-import 'package:skripsi_app/ui/checkout/checkout_screen.dart';
-import 'package:skripsi_app/ui/chatbot/chatbot_screen.dart';
-import 'package:skripsi_app/ui/home/home_screen.dart';
 import 'package:skripsi_app/ui/home/home_state.dart';
-import 'package:skripsi_app/ui/login/login_screen.dart';
-import 'package:skripsi_app/ui/product/detail_products.dart';
-import 'package:skripsi_app/ui/product/product_screen.dart';
-import 'package:skripsi_app/ui/register/register_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
-import 'package:skripsi_app/ui/voucher/voucher_screen.dart';
 
 void main() {
   runApp(const MyApp());

@@ -43,7 +43,7 @@ void addToCart(Product product, String selectedSize) async {
 
   bool productExists = false;
   for (var item in cart) {
-    if (item['productId'] == product.id && item['size'] == selectedSize) {
+    if (item['id'] == product.id && item['size'] == selectedSize) {
       item['quantity'] += 1;
       productExists = true;
       break;
@@ -52,8 +52,8 @@ void addToCart(Product product, String selectedSize) async {
 
   if (!productExists) {
     cart.add({
-      'productId': product.id,
-      'productName': product.name,
+      'id': product.id,
+      'name': product.name,
       'size': selectedSize,
       'price': product.price,
       'quantity': 1,
@@ -95,10 +95,11 @@ Future<List<CartItem>> getCartItems() async {
   try {
     // Explicitly parse the JSON string
     final List<dynamic> cartList = jsonDecode(cartData);
+    print('Cart data: $cartList');
     return cartList
         .map((item) => CartItem(
-              id: item['productId'],
-              name: item['productName'],
+              id: item['id'],
+              name: item['name'],
               size: item['size'],
               price: (item['price'] as num).toDouble(),
               quantity: item['quantity'],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -56,5 +57,14 @@ class CustomBottomNav extends StatelessWidget {
       ),
       label: label,
     );
+  }
+}
+
+
+class HomeController extends GetxController {
+  var currentIndex = 0.obs;
+
+  void setCurrentIndex(int index) {
+    currentIndex.value = index;
   }
 }

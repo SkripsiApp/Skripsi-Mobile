@@ -8,7 +8,7 @@ import 'package:skripsi_app/model/cart_model.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
 
 class CartScreen extends StatefulWidget {
-  const CartScreen({Key? key}) : super(key: key);
+  const CartScreen({super.key});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -70,6 +70,7 @@ class _CartScreenState extends State<CartScreen> {
                     setState(() {
                       items[index].quantity = quantity;
                     });
+                    _saveCartItems();
                   },
                   onDelete: () {
                     setState(() {
@@ -155,6 +156,7 @@ class _CartScreenState extends State<CartScreen> {
       final cartKey = 'cart_$userId';
       final cartData = jsonEncode(items.map((item) => item.toJson()).toList());
       await prefs.setString(cartKey, cartData);
+      print("Cart data saved: $cartData");
     }
   }
 

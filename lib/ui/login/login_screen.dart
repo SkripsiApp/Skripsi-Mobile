@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:skripsi_app/controller/login_controller.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skripsi_app/routes/routes_named.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -101,10 +103,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: _loginController.isLoading.value
                           ? null
                           : () {
-                              _loginController.login(
+                              _loginController
+                                  .login(
                                 _emailController.text,
                                 _passwordController.text,
-                              );
+                              ).then((value) async {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setInt('currentIndex', 0);
+
+                                // Arahkan ke halaman utama setelah login
+                                Get.offAllNamed(RoutesNamed.state);
+                              });
                             },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3ABEF9),
@@ -115,9 +125,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: _loginController.isLoading.value
                           ? const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             )
                           : const Text(
                               'Login',
