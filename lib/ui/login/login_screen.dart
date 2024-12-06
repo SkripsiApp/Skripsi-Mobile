@@ -70,6 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       vertical: 14,
                     ),
                   ),
+                  style: const TextStyle(
+                    decoration: TextDecoration.none,
+                    decorationThickness: 0,
+                  ),
                 ),
                 const SizedBox(height: 30),
                 // Password TextField
@@ -124,9 +128,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       child: _loginController.isLoading.value
-                          ? const CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
                             )
                           : const Text(
                               'Login',
@@ -157,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Get.toNamed('/register');
+                        Get.toNamed(RoutesNamed.register);
                       },
                       child: const Text(
                         'Daftar Akun',
