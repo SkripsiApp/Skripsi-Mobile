@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:skripsi_app/controller/user_controller.dart';
 import 'package:skripsi_app/helper/cart.dart';
 import 'package:skripsi_app/helper/dialog.dart';
+import 'package:skripsi_app/helper/navigation.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,8 +17,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ProductController _controller = Get.put(ProductController());
   final ProfileController _profileController = Get.put(ProfileController());
+  final HomeController _homeController = Get.find<HomeController>();
 
-  int _cartItemCount = 0;
+  final _cartItemCount = 0.obs;
 
   @override
   void initState() {
@@ -27,9 +29,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadCartItemCount() async {
     final cartItems = await getCartItems();
-    setState(() {
-      _cartItemCount = cartItems.length;
-    });
+    _cartItemCount.value = cartItems.length;
   }
 
   @override
@@ -79,39 +79,47 @@ class _HomePageState extends State<HomePage> {
                                 onPressed: () {
                                   final user =
                                       _profileController.userProfile.value;
-                                  if (user != null) {
-                                    Get.toNamed(RoutesNamed.cart);
-                                  } else {
+                                  if (user == null) {
                                     CustomDialog.showError(
-                                      title: 'Login Diperlukan',
+                                      title: 'Peringatan',
                                       message: 'Silahkan login terlebih dahulu',
                                       onConfirm: () {
                                         Get.toNamed(RoutesNamed.login);
                                       },
                                     );
+                                    return;
+                                  } else {
+                                    Get.toNamed(RoutesNamed.cart)?.then((_) {
+                                      _loadCartItemCount();
+                                    });
                                   }
                                 },
                               ),
-                              if (_cartItemCount > 0)
-                                Positioned(
-                                  top: -4,
-                                  right: -4,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Text(
-                                      '$_cartItemCount',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
+                              Obx(() {
+                                if (_cartItemCount.value > 0) {
+                                  return Positioned(
+                                    top: -4,
+                                    right: -4,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        '${_cartItemCount.value}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              }),
                             ],
                           ),
                           IconButton(
@@ -271,7 +279,7 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {
-                Get.toNamed(RoutesNamed.product);
+                _homeController.setCurrentIndex(1);
               },
               child: const Text(
                 'Lihat Semua',
@@ -362,7 +370,9 @@ class _HomePageState extends State<HomePage> {
   ) {
     return GestureDetector(
       onTap: () {
-        Get.toNamed(RoutesNamed.productDetail, arguments: id);
+        Get.toNamed(RoutesNamed.productDetail, arguments: id)?.then((_) {
+          _loadCartItemCount();
+        });
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
