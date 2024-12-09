@@ -6,6 +6,7 @@ import 'package:skripsi_app/helper/cart.dart';
 import 'package:skripsi_app/helper/dialog.dart';
 import 'package:skripsi_app/helper/navigation.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
+import 'package:skripsi_app/ui/product/product_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -243,24 +244,28 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildCategoryItem('assets/img/necklace.png', 'Kalung', () {
-              print('Kalung clicked');
+              _navigateToProductScreen('Kalung');
             }),
             _buildCategoryItem('assets/img/bracelet.png', 'Gelang', () {
-              print('Gelang clicked');
+              _navigateToProductScreen('Gelang');
             }),
             _buildCategoryItem('assets/img/ring.png', 'Cincin', () {
-              print('Cincin clicked');
+              _navigateToProductScreen('Cincin');
             }),
             _buildCategoryItem('assets/img/earrings.png', 'Anting', () {
-              print('Anting clicked');
+              _navigateToProductScreen('Anting');
             }),
             _buildCategoryItem('assets/img/more.png', 'Lihat Semua', () {
-              print('Lihat Semua clicked');
+              _navigateToProductScreen('Semua');
             }),
           ],
         ),
       ],
     );
+  }
+
+  void _navigateToProductScreen(String category) {
+    Get.to(() => ProductScreen(initialCategory: category));
   }
 
   Widget _buildBestSellerSection() {

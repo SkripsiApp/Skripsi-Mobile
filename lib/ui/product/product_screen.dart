@@ -5,7 +5,8 @@ import 'package:skripsi_app/helper/capitalize.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
 
 class ProductScreen extends StatefulWidget {
-  const ProductScreen({super.key});
+  final String? initialCategory;
+  const ProductScreen({super.key, this.initialCategory});
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
@@ -16,6 +17,21 @@ class _ProductScreenState extends State<ProductScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   String selectedCategory = 'Semua';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialCategory != null) {
+      selectedCategory = widget.initialCategory!;
+      _onCategorySelected(selectedCategory);
+    }
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _controller.loadMoreProducts();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +73,11 @@ class _ProductScreenState extends State<ProductScreen> {
                   },
                 ),
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFD9D9D9),
-                    )),
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFD9D9D9),
+                  ),
+                ),
                 filled: true,
                 fillColor: Colors.grey[200],
                 contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -280,32 +297,21 @@ class _ProductScreenState extends State<ProductScreen> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        _controller.loadMoreProducts();
-      }
-    });
+  void _onCategorySelected(String category) {
+  setState(() {
+    selectedCategory = category;
+  });
+  if (category == 'Semua') {
+    _controller.fetchProducts();
+  } else {
+    _controller.fetchProducts(search: category);
   }
+}
 
   @override
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _onCategorySelected(String category) {
-    setState(() {
-      selectedCategory = category;
-    });
-    if (category == 'Semua') {
-      _controller.fetchProducts();
-    } else {
-      _controller.fetchProducts(search: category);
-    }
   }
 }
