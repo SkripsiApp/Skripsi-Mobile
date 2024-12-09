@@ -19,7 +19,7 @@ class CartItem {
     return CartItem(
       id: json['id'],
       image: json['image'],
-      name: json['productName'],
+      name: json['name'],
       price: json['price'],
       size: json['size'],
       quantity: json['quantity'],
@@ -28,8 +28,9 @@ class CartItem {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'image': image,
-      'productName': name,
+      'name': name,
       'price': price,
       'size': size,
       'quantity': quantity,

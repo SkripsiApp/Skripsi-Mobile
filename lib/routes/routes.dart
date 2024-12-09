@@ -2,6 +2,7 @@ import 'package:skripsi_app/routes/routes_named.dart';
 import 'package:skripsi_app/ui/cart/cart_screen.dart';
 import 'package:skripsi_app/ui/checkout/checkout_screen.dart';
 import 'package:skripsi_app/ui/home/home_screen.dart';
+import 'package:skripsi_app/ui/home/home_state.dart';
 import 'package:skripsi_app/ui/login/login_screen.dart';
 import 'package:get/get.dart';
 import 'package:skripsi_app/ui/product/detail_products.dart';
@@ -17,5 +18,6 @@ class AppRoutes {
     GetPage(name: RoutesNamed.productDetail, page: () => const DetailProductScreen(),),
     GetPage(name: RoutesNamed.cart, page: () => const CartScreen()),
     GetPage(name: RoutesNamed.checkout, page: () => const CheckoutScreen()),
+    GetPage(name: RoutesNamed.state, page: () => const HomeState()),
   ];
 }
