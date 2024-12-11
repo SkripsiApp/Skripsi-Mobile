@@ -8,7 +8,7 @@ class VoucherController extends GetxController {
 
   var isLoading = false.obs;
   var isLoadingMore = false.obs;
-  var productList = <Voucher>[].obs;
+  var voucherList = <Voucher>[].obs;
   var currentPage = 1.obs;
   var lastPage = 1.obs;
 
@@ -22,7 +22,7 @@ class VoucherController extends GetxController {
     try {
       if (page == null) {
         isLoading.value = true;
-        productList.clear();
+        voucherList.clear();
         currentPage.value = 1;
       } else {
         isLoadingMore.value = true;
@@ -32,7 +32,7 @@ class VoucherController extends GetxController {
           await _apiService.getVouchers(search: search, page: page ?? 1);
 
       if (response.status) {
-        productList.addAll(response.data);
+        voucherList.addAll(response.data);
         currentPage.value = response.pagination.currentPage;
         lastPage.value = response.pagination.lastPage;
       } else {

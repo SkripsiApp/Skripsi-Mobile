@@ -10,4 +10,5 @@ abstract class RoutesNamed {
   static const String chatbot = '/chatbot';
   static const String riwayat = '/riwayat';
   static const String state = '/state';
+  static const String payment = '/payment';
 }

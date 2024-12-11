@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:skripsi_app/controller/checkout_controller.dart';
+import 'package:skripsi_app/controller/user_controller.dart';
+import 'package:skripsi_app/controller/voucher_controller.dart';
+import 'package:skripsi_app/model/cart_model.dart';
+import 'package:skripsi_app/model/checkout_model.dart';
+import 'package:skripsi_app/model/voucher_model.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -8,6 +15,10 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  final CheckoutController _checkoutController = Get.put(CheckoutController());
+  final ProfileController _profileController = Get.put(ProfileController());
+  final VoucherController _voucherController = Get.put(VoucherController());
+
   String? selectedShippingMethod;
   final List<String> shippingMethods = [
     "JNE - Regular",
@@ -15,11 +26,52 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     "SiCepat - Same Day",
     "POS - Kilat Khusus"
   ];
+
   bool usePoints = false;
   double totalPrice = 400000;
   double shippingCost = 15000;
-  double discount = 20000;
-  int availablePoints = 5000;
+  double discount = 0;
+  int availablePoints = 0;
+  String? voucherId;
+
+  List<CartItem> items = [];
+
+  @override
+  void initState() {
+    super.initState();
+    items = Get.arguments as List<CartItem>;
+    totalPrice =
+        items.fold(0, (sum, item) => sum + (item.price * item.quantity));
+    _loadUserPoints();
+  }
+
+  void _loadUserPoints() {
+    final userProfile = _profileController.userProfile.value;
+    if (userProfile != null) {
+      setState(() {
+        availablePoints = userProfile.point;
+      });
+    }
+  }
+
+  void _applyVoucher(String id) {
+    final voucher = _voucherController.voucherList
+        .firstWhere((voucher) => voucher.id == id, orElse: () => Voucher(id: '', name: '', description: '', discount: 0));
+
+    if (voucher.id.isNotEmpty) {
+      setState(() {
+        voucherId = voucher.id;
+        discount = voucher.discount.toDouble();
+        Get.snackbar('Success', 'Voucher berhasil digunakan');
+      });
+    } else {
+      setState(() {
+        voucherId = null;
+        discount = 0;
+        Get.snackbar('Error', 'Voucher tidak ditemukan');
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,11 +108,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               title: "Produk",
               content: Column(
                 children: [
-                  _buildProductCard("Sepatu Sneakers", "Rp 250.000", 1,
-                      "http://res.cloudinary.com/djmyxwhgu/image/upload/v1732641611/products/Gelang%20Emas.jpg"),
-                  const SizedBox(height: 16),
-                  _buildProductCard("Kemeja Flanel", "Rp 150.000", 2,
-                      "http://res.cloudinary.com/djmyxwhgu/image/upload/v1732641611/products/Gelang%20Emas.jpg"),
+                  ...items.map((item) {
+                    return Column(
+                      children: [
+                        _buildProductCard(
+                            item.name,
+                            'Rp ${item.price.toStringAsFixed(0)}',
+                            item.quantity,
+                            item.image),
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  }),
                   Container(
                     height: 1,
                     margin: const EdgeInsets.symmetric(vertical: 16),
@@ -276,12 +335,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: Colors.black),
+              onChanged: (value) {
+                voucherId = value;
+              },
             ),
           ),
           const SizedBox(width: 12),
           ElevatedButton(
             onPressed: () {
-              print("Voucher digunakan");
+              if(voucherId != null) {
+                _applyVoucher(voucherId!);
+              } 
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF3ABEF9),
@@ -443,7 +507,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                print("Checkout button pressed");
+                _onCheckoutButtonPressed();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3ABEF9),
@@ -465,5 +529,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ],
       ),
     );
+  }
+
+  void _onCheckoutButtonPressed() {
+    final checkoutRequest = CheckoutRequest(
+      voucherId: voucherId,
+      addressId: "1bcfa16b-fced-4a4b-aeba-6c2daa11035a",
+      usePoint: usePoints,
+      pointUsed: usePoints ? availablePoints : null,
+      courierName: selectedShippingMethod ?? "JNE - Regular",
+      shippingCost: shippingCost.toInt(),
+      transactionDetail: items
+          .map((item) => TransactionDetail(
+                productId: item.id,
+                quantity: item.quantity,
+                size: item.size,
+              ))
+          .toList(),
+    );
+
+    _checkoutController.checkout(checkoutRequest);
   }
 }

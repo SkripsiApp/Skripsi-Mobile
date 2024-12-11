@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:skripsi_app/helper/dio_client.dart';
+import 'package:skripsi_app/model/checkout_model.dart';
 import 'package:skripsi_app/model/register_model.dart';
+import 'package:skripsi_app/response/checkout_response.dart';
 import 'package:skripsi_app/response/login_response.dart';
 import 'package:skripsi_app/response/pagination_response.dart';
 import 'package:skripsi_app/response/product_response.dart';
@@ -211,6 +213,49 @@ class ApiService {
             currentPage: 0,
             lastPage: 0,
           ),
+        );
+      }
+    }
+  }
+
+  // Checkout method
+  Future<CheckoutResponse> checkout(CheckoutRequest request) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return CheckoutResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: null,
+      );
+    }
+
+    try {
+      final response = await _dio.post(
+        '/transaction',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: request.toJson(),
+      );
+
+      return CheckoutResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return CheckoutResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: null,
+        );
+      } else {
+        return CheckoutResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: null,
         );
       }
     }
