@@ -47,7 +47,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${voucherController.productList.length}',
+                        '${voucherController.voucherList.length}',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -68,9 +68,9 @@ class _VoucherScreenState extends State<VoucherScreen> {
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: voucherController.productList.length,
+                itemCount: voucherController.voucherList.length,
                 itemBuilder: (context, index) {
-                  final voucher = voucherController.productList[index];
+                  final voucher = voucherController.voucherList[index];
                   return Column(
                     children: [
                       _buildVoucherCard(
