@@ -11,4 +11,7 @@ abstract class RoutesNamed {
   static const String riwayat = '/riwayat';
   static const String state = '/state';
   static const String payment = '/payment';
+  static const String addAddress = '/add-address';
+  static const String updateAddress = '/update-address';
+  static const String listAddress = '/list-address';
 }

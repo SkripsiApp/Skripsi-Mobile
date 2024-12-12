@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:skripsi_app/helper/dio_client.dart';
+import 'package:skripsi_app/model/address_model.dart';
 import 'package:skripsi_app/model/checkout_model.dart';
 import 'package:skripsi_app/model/register_model.dart';
+import 'package:skripsi_app/response/address_response.dart';
 import 'package:skripsi_app/response/checkout_response.dart';
 import 'package:skripsi_app/response/login_response.dart';
 import 'package:skripsi_app/response/pagination_response.dart';
@@ -253,6 +255,208 @@ class ApiService {
         );
       } else {
         return CheckoutResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: null,
+        );
+      }
+    }
+  }
+
+  // Add Address method
+  Future<AddressResponse> addAddress(AddressModel request) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return AddressResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: null,
+      );
+    }
+
+    try {
+      final response = await _dio.post(
+        '/address',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: request.toJson(),
+      );
+
+      return AddressResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return AddressResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+            data: null,
+          );
+        }
+        return AddressResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: null,
+        );
+      } else {
+        return AddressResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: null,
+        );
+      }
+    }
+  }
+
+  // Fetch Address method
+  Future<AddressResponse> getAddresses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return AddressResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: [],
+      );
+    }
+
+    try {
+      final response = await _dio.get(
+        '/address',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return AddressResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return AddressResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+            data: [],
+          );
+        }
+        return AddressResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: [],
+        );
+      } else {
+        return AddressResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: [],
+        );
+      }
+    }
+  }
+
+  // Update Address method
+  Future<AddressResponse> updateAddress(AddressModel request) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return AddressResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: null,
+      );
+    }
+
+    try {
+      final response = await _dio.put(
+        '/address/${request.id}',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: request.toJson(),
+      );
+
+      return AddressResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return AddressResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+            data: null,
+          );
+        }
+        return AddressResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: null,
+        );
+      } else {
+        return AddressResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: null,
+        );
+      }
+    }
+  }
+
+  // Delete Address method
+  Future<AddressResponse> deleteAddress(String addressId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return AddressResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: null,
+      );
+    }
+
+    try {
+      final response = await _dio.delete(
+        '/address/$addressId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return AddressResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return AddressResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+            data: null,
+          );
+        }
+        return AddressResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: null,
+        );
+      } else {
+        return AddressResponse(
           status: false,
           message: 'Gagal terhubung ke server',
           data: null,
