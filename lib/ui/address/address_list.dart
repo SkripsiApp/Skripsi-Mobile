@@ -68,7 +68,24 @@ class _AddressListState extends State<AddressList> {
                               );
                             },
                             onDelete: () {
-                              // Implement delete functionality
+                              // Tampilkan dialog konfirmasi
+                              Get.defaultDialog(
+                                title: 'Hapus Alamat',
+                                middleText:
+                                    'Apakah Anda yakin ingin menghapus alamat ini?',
+                                textConfirm: 'Ya',
+                                textCancel: 'Batal',
+                                confirmTextColor: Colors.white,
+                                onConfirm: () {
+                                  Get.back();
+                                  if (address.id != null) {
+                                    _addressController.deleteAddress(address.id!);
+                                  } 
+                                },
+                                onCancel: () {
+                                  Get.back();
+                                },
+                              );
                             },
                           ),
                           const SizedBox(height: 12),

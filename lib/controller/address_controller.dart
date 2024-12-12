@@ -23,9 +23,10 @@ class AddressController extends GetxController {
           message: response.message,
           onConfirm: () {
             Get.back();
+            Get.offAllNamed(RoutesNamed.listAddress);
           },
         );
-        fetchAddress(); // Refresh the address list
+        fetchAddress();
       } else {
         CustomDialog.showError(
           title: 'Gagal',
@@ -76,6 +77,36 @@ class AddressController extends GetxController {
       isLoading.value = true;
 
       final response = await _apiService.updateAddress(data);
+
+      if (response.status) {
+        CustomDialog.showSuccess(
+          title: 'Berhasil',
+          message: response.message,
+          onConfirm: () {
+            Get.back();
+          },
+        );
+        fetchAddress();
+      } else {
+        CustomDialog.showError(
+          title: 'Gagal',
+          message: response.message,
+          onConfirm: () {
+            Get.back();
+          },
+        );
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Delete the address
+  Future<void> deleteAddress(String id) async {
+    try {
+      isLoading.value = true;
+
+      final response = await _apiService.deleteAddress(id);
 
       if (response.status) {
         CustomDialog.showSuccess(

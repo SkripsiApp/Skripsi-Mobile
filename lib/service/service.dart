@@ -414,4 +414,54 @@ class ApiService {
       }
     }
   }
+
+  // Delete Address method
+  Future<AddressResponse> deleteAddress(String addressId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return AddressResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: null,
+      );
+    }
+
+    try {
+      final response = await _dio.delete(
+        '/address/$addressId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return AddressResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return AddressResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+            data: null,
+          );
+        }
+        return AddressResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: null,
+        );
+      } else {
+        return AddressResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: null,
+        );
+      }
+    }
+  }
 }
