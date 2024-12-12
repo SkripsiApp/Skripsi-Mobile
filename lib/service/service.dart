@@ -363,4 +363,55 @@ class ApiService {
       }
     }
   }
+
+  // Update Address method
+  Future<AddressResponse> updateAddress(AddressModel request) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return AddressResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: null,
+      );
+    }
+
+    try {
+      final response = await _dio.put(
+        '/address/${request.id}',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: request.toJson(),
+      );
+
+      return AddressResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return AddressResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+            data: null,
+          );
+        }
+        return AddressResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: null,
+        );
+      } else {
+        return AddressResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: null,
+        );
+      }
+    }
+  }
 }

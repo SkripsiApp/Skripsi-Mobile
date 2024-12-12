@@ -62,7 +62,10 @@ class _AddressListState extends State<AddressList> {
                             isSelected: _addressController
                                 .isAddressSelected(address.id),
                             onEdit: () {
-                              // Implement edit functionality
+                              Get.toNamed(
+                                RoutesNamed.updateAddress,
+                                arguments: address,
+                              );
                             },
                             onDelete: () {
                               // Implement delete functionality
