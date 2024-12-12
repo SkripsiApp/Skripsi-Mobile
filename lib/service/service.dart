@@ -290,6 +290,14 @@ class ApiService {
       return AddressResponse.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return AddressResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+            data: null,
+          );
+        }
         return AddressResponse(
           status: false,
           message:
@@ -301,6 +309,56 @@ class ApiService {
           status: false,
           message: 'Gagal terhubung ke server',
           data: null,
+        );
+      }
+    }
+  }
+
+  // Fetch Address method
+  Future<AddressResponse> getAddresses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return AddressResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: [],
+      );
+    }
+
+    try {
+      final response = await _dio.get(
+        '/address',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return AddressResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return AddressResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+            data: [],
+          );
+        }
+        return AddressResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: [],
+        );
+      } else {
+        return AddressResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: [],
         );
       }
     }

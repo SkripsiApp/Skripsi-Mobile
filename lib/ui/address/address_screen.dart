@@ -182,7 +182,7 @@ class AddressScreen extends StatelessWidget {
                         name: _nameController.text.trim(),
                         address: _addressController.text.trim(),
                         city: _cityController.text.trim(),
-                        subdistrict: _subdistrictController.text.trim(),
+                        subdistric: _subdistrictController.text.trim(),
                         zipCode: _zipCodeController.text.trim(),
                         phone: _phoneController.text.trim(),
                       );
