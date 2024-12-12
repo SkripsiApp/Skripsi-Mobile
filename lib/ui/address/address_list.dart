@@ -44,60 +44,131 @@ class _AddressListState extends State<AddressList> {
       ),
       body: Stack(
         children: [
-          Obx(() {
-            if (_addressController.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (_addressController.addressList.isEmpty) {
-              return const Center(child: Text('Tidak ada alamat tersimpan'));
-            } else {
-              return ListView.builder(
-                padding: const EdgeInsets.all(24.0),
-                itemCount: _addressController.addressList.length,
-                itemBuilder: (context, index) {
-                  final address = _addressController.addressList[index];
-                  return Obx(() => Column(
-                        children: [
-                          _buildAddressCard(
-                            address: address,
-                            isSelected: _addressController
-                                .isAddressSelected(address.id),
-                            onEdit: () {
-                              Get.toNamed(
-                                RoutesNamed.updateAddress,
-                                arguments: address,
-                              );
-                            },
-                            onDelete: () {
-                              // Tampilkan dialog konfirmasi
-                              Get.defaultDialog(
-                                title: 'Hapus Alamat',
-                                middleText:
-                                    'Apakah Anda yakin ingin menghapus alamat ini?',
-                                textConfirm: 'Ya',
-                                textCancel: 'Batal',
-                                confirmTextColor: Colors.white,
-                                onConfirm: () {
-                                  Get.back();
-                                  if (address.id != null) {
-                                    _addressController.deleteAddress(address.id!);
-                                  } 
-                                },
-                                onCancel: () {
-                                  Get.back();
-                                },
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                      ));
-                },
-              );
-            }
-          }),
+          Column(
+            children: [
+              Expanded(
+                child: Obx(() {
+                  if (_addressController.isLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (_addressController.addressList.isEmpty) {
+                    return const Center(
+                        child: Text('Tidak ada alamat tersimpan'));
+                  } else {
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(24.0),
+                      itemCount: _addressController.addressList.length,
+                      itemBuilder: (context, index) {
+                        final address = _addressController.addressList[index];
+                        return Obx(() => Column(
+                              children: [
+                                _buildAddressCard(
+                                  address: address,
+                                  isSelected: _addressController
+                                      .isAddressSelected(address.id),
+                                  onEdit: () {
+                                    Get.toNamed(
+                                      RoutesNamed.updateAddress,
+                                      arguments: address,
+                                    );
+                                  },
+                                  onDelete: () {
+                                    Get.dialog(
+                                      Dialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.warning_amber_outlined,
+                                                size: 64,
+                                                color: Colors.orange,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              const Text(
+                                                'Hapus Alamat',
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              const Text(
+                                                'Apakah Anda yakin ingin menghapus alamat ini?',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(fontSize: 16),
+                                              ),
+                                              const SizedBox(height: 16),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                children: [
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Get.back();
+                                                    },
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:Colors.grey,
+                                                      shape:RoundedRectangleBorder(
+                                                        borderRadius:BorderRadius.circular(10),
+                                                      ),
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 24,
+                                                        vertical: 12,
+                                                      ),
+                                                    ),
+                                                    child: const Text(
+                                                      'Batal',
+                                                      style: TextStyle(color: Colors.white),
+                                                    ),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Get.back();
+                                                      if (address.id != null) {
+                                                        _addressController.deleteAddress(address.id!);
+                                                      }
+                                                    },
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:Colors.green,
+                                                      shape:RoundedRectangleBorder(
+                                                        borderRadius:BorderRadius.circular(10),
+                                                      ),
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 24,
+                                                        vertical: 12,
+                                                      ),
+                                                    ),
+                                                    child: const Text(
+                                                      'Ya',
+                                                      style: TextStyle(color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                            ));
+                      },
+                    );
+                  }
+                }),
+              ),
+              _buildSelectAddressButton(),
+            ],
+          ),
           Positioned(
             right: 16,
-            bottom: 120,
+            bottom: 115,
             child: FloatingActionButton(
               onPressed: () {
                 Get.toNamed(RoutesNamed.addAddress);
@@ -109,12 +180,6 @@ class _AddressListState extends State<AddressList> {
                 size: 36,
               ),
             ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildSelectAddressButton(),
           ),
         ],
       ),
