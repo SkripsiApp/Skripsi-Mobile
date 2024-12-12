@@ -1,4 +1,7 @@
 import 'package:skripsi_app/routes/routes_named.dart';
+import 'package:skripsi_app/ui/address/address_list.dart';
+import 'package:skripsi_app/ui/address/address_screen.dart';
+import 'package:skripsi_app/ui/address/update_screen.dart';
 import 'package:skripsi_app/ui/cart/cart_screen.dart';
 import 'package:skripsi_app/ui/checkout/checkout_screen.dart';
 import 'package:skripsi_app/ui/home/home_screen.dart';
@@ -19,5 +22,8 @@ class AppRoutes {
     GetPage(name: RoutesNamed.cart, page: () => const CartScreen()),
     GetPage(name: RoutesNamed.checkout, page: () => const CheckoutScreen()),
     GetPage(name: RoutesNamed.state, page: () => const HomeState()),
+    GetPage(name: RoutesNamed.listAddress, page: () => const AddressList()),
+    GetPage(name: RoutesNamed.addAddress, page: () => AddressScreen()),
+    GetPage(name: RoutesNamed.updateAddress, page: () => EditAddressPage()),
   ];
 }
