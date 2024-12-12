@@ -23,7 +23,7 @@ class AddressController extends GetxController {
           message: response.message,
           onConfirm: () {
             Get.back();
-            Get.offAllNamed(RoutesNamed.listAddress);
+            Get.until((route) => Get.currentRoute == RoutesNamed.listAddress); 
           },
         );
         fetchAddress();

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:skripsi_app/controller/address_controller.dart';
 import 'package:skripsi_app/controller/checkout_controller.dart';
 import 'package:skripsi_app/controller/user_controller.dart';
 import 'package:skripsi_app/controller/voucher_controller.dart';
 import 'package:skripsi_app/model/cart_model.dart';
 import 'package:skripsi_app/model/checkout_model.dart';
 import 'package:skripsi_app/model/voucher_model.dart';
+import 'package:skripsi_app/routes/routes_named.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -18,6 +20,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final CheckoutController _checkoutController = Get.put(CheckoutController());
   final ProfileController _profileController = Get.put(ProfileController());
   final VoucherController _voucherController = Get.put(VoucherController());
+  final AddressController _addressController = Get.put(AddressController());
 
   String? selectedShippingMethod;
   final List<String> shippingMethods = [
@@ -187,18 +190,34 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            "Jl. Kebahagiaan No. 123, Jakarta",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+          child: Obx(() {
+            final selectedAddress =
+                _addressController.addressList.firstWhereOrNull(
+              (address) =>
+                  address.id == _addressController.selectedAddressId.value,
+            );
+
+            return Text(
+              selectedAddress != null
+                  ? selectedAddress.address
+                  : "Pilih alamat",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            );
+          }),
         ),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () async {
+            final selectedAddress =
+                await Get.toNamed(RoutesNamed.listAddress);
+            if (selectedAddress != null) {
+              _addressController.selectedAddressId.value = selectedAddress.id;
+            }
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF3ABEF9),
             foregroundColor: Colors.white,
@@ -532,9 +551,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _onCheckoutButtonPressed() {
+    final selectedAddressId = _addressController.selectedAddressId.value;
+
     final checkoutRequest = CheckoutRequest(
       voucherId: voucherId,
-      addressId: "1bcfa16b-fced-4a4b-aeba-6c2daa11035a",
+      addressId: selectedAddressId!,
       usePoint: usePoints,
       pointUsed: usePoints ? availablePoints : null,
       courierName: selectedShippingMethod ?? "JNE - Regular",
