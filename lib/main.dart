@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skripsi_app/routes/routes.dart';
+import 'package:skripsi_app/ui/address/address_screen.dart';
 import 'package:skripsi_app/ui/home/home_state.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: const HomeState(),
+      home: AddressScreen(),
       getPages: AppRoutes.appRoutes,
     );
   }

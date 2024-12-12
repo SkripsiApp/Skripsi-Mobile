@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:skripsi_app/helper/dio_client.dart';
+import 'package:skripsi_app/model/address_model.dart';
 import 'package:skripsi_app/model/checkout_model.dart';
 import 'package:skripsi_app/model/register_model.dart';
+import 'package:skripsi_app/response/address_response.dart';
 import 'package:skripsi_app/response/checkout_response.dart';
 import 'package:skripsi_app/response/login_response.dart';
 import 'package:skripsi_app/response/pagination_response.dart';
@@ -253,6 +255,49 @@ class ApiService {
         );
       } else {
         return CheckoutResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: null,
+        );
+      }
+    }
+  }
+
+  // Add Address method
+  Future<AddressResponse> addAddress(AddressModel request) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return AddressResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: null,
+      );
+    }
+
+    try {
+      final response = await _dio.post(
+        '/address',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: request.toJson(),
+      );
+
+      return AddressResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return AddressResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: null,
+        );
+      } else {
+        return AddressResponse(
           status: false,
           message: 'Gagal terhubung ke server',
           data: null,
