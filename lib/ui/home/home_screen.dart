@@ -5,7 +5,9 @@ import 'package:skripsi_app/controller/user_controller.dart';
 import 'package:skripsi_app/helper/cart.dart';
 import 'package:skripsi_app/helper/dialog.dart';
 import 'package:skripsi_app/helper/navigation.dart';
+import 'package:skripsi_app/helper/route_observer.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
+import 'package:skripsi_app/ui/product/product_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,7 +16,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with RouteAware {
   final ProductController _controller = Get.put(ProductController());
   final ProfileController _profileController = Get.put(ProfileController());
   final HomeController _homeController = Get.find<HomeController>();
@@ -27,6 +29,24 @@ class _HomePageState extends State<HomePage> {
     _loadCartItemCount();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+  
+  @override
+  void didPopNext() {
+    super.didPopNext();
+    _profileController.onRefresh();
+  }
+
   Future<void> _loadCartItemCount() async {
     final cartItems = await getCartItems();
     _cartItemCount.value = cartItems.length;
@@ -34,122 +54,128 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Stack(
-        children: [
-          Column(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 200,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/img/header.png'),
-                    fit: BoxFit.fill,
+    return RefreshIndicator(
+      onRefresh: () async {
+        _profileController.onRefresh();
+        await _loadCartItemCount();
+      },
+      child: SingleChildScrollView(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/img/header.png'),
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: SizedBox(
-                  height: 56,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'ALNI ACCESSORIES',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+              ],
+            ),
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: SizedBox(
+                    height: 56,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'ALNI ACCESSORIES',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Row(
-                        children: [
-                          Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.shopping_cart_outlined),
-                                color: Colors.black,
-                                onPressed: () {
-                                  final user =
-                                      _profileController.userProfile.value;
-                                  if (user == null) {
-                                    CustomDialog.showError(
-                                      title: 'Peringatan',
-                                      message: 'Silahkan login terlebih dahulu',
-                                      onConfirm: () {
-                                        Get.toNamed(RoutesNamed.login);
-                                      },
-                                    );
-                                    return;
-                                  } else {
-                                    Get.toNamed(RoutesNamed.cart)?.then((_) {
-                                      _loadCartItemCount();
-                                    });
-                                  }
-                                },
-                              ),
-                              Obx(() {
-                                if (_cartItemCount.value > 0) {
-                                  return Positioned(
-                                    top: -4,
-                                    right: -4,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Text(
-                                        '${_cartItemCount.value}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
+                        Row(
+                          children: [
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.shopping_cart_outlined),
+                                  color: Colors.black,
+                                  onPressed: () {
+                                    final user =
+                                        _profileController.userProfile.value;
+                                    if (user == null) {
+                                      CustomDialog.showError(
+                                        title: 'Peringatan',
+                                        message: 'Silahkan login terlebih dahulu',
+                                        onConfirm: () {
+                                          Get.toNamed(RoutesNamed.login);
+                                        },
+                                      );
+                                      return;
+                                    } else {
+                                      Get.toNamed(RoutesNamed.cart)?.then((_) {
+                                        _loadCartItemCount();
+                                      });
+                                    }
+                                  },
+                                ),
+                                Obx(() {
+                                  if (_cartItemCount.value > 0) {
+                                    return Positioned(
+                                      top: -4,
+                                      right: -4,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          '${_cartItemCount.value}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              }),
-                            ],
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.person_outline),
-                            color: Colors.black,
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
+                                    );
+                                  } else {
+                                    return const SizedBox.shrink();
+                                  }
+                                }),
+                              ],
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.person_outline),
+                              color: Colors.black,
+                              onPressed: () {},
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 60),
+                      _buildPointsCard(),
+                      const SizedBox(height: 24),
+                      _buildCategoriesSection(),
+                      const SizedBox(height: 24),
+                      _buildBestSellerSection(),
                     ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 60),
-                    _buildPointsCard(),
-                    const SizedBox(height: 24),
-                    _buildCategoriesSection(),
-                    const SizedBox(height: 24),
-                    _buildBestSellerSection(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -321,7 +347,9 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCategoryItem(
       String imagePath, String label, VoidCallback onTap) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        Get.to(() => const ProductScreen(), arguments: label);
+      },
       child: Column(
         children: [
           Container(

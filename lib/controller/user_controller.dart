@@ -17,6 +17,10 @@ class ProfileController extends GetxController {
     checkLoginStatus();
   }
 
+  void onRefresh() {
+    fetchProfile();
+  }
+
   Future<void> checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
