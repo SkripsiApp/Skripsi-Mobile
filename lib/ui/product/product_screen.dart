@@ -5,7 +5,7 @@ import 'package:skripsi_app/helper/capitalize.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
 
 class ProductScreen extends StatefulWidget {
-  const ProductScreen({super.key});
+const ProductScreen({super.key});
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
@@ -15,7 +15,7 @@ class _ProductScreenState extends State<ProductScreen> {
   final ProductController _controller = Get.put(ProductController());
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  String selectedCategory = 'Semua';
+  String selectedCategory = Get.arguments?? 'Semua';
 
   @override
   Widget build(BuildContext context) {
@@ -283,6 +283,14 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (selectedCategory == 'Semua') {
+        _controller.fetchProducts();
+      } else {
+        _controller.fetchProducts(search: selectedCategory);
+      }
+    });
+
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
