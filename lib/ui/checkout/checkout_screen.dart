@@ -39,6 +39,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   List<CartItem> items = [];
 
+  bool isAddressSelected = false;
+  bool isShippingMethodSelected = false;
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -58,8 +62,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _applyVoucher(String id) {
-    final voucher = _voucherController.voucherList
-        .firstWhere((voucher) => voucher.id == id, orElse: () => Voucher(id: '', name: '', description: '', discount: 0));
+    final voucher = _voucherController.voucherList.firstWhere(
+        (voucher) => voucher.id == id,
+        orElse: () => Voucher(id: '', name: '', description: '', discount: 0));
 
     if (voucher.id.isNotEmpty) {
       setState(() {
@@ -212,10 +217,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
         ElevatedButton(
           onPressed: () async {
-            final selectedAddress =
-                await Get.toNamed(RoutesNamed.listAddress);
+            final selectedAddress = await Get.toNamed(RoutesNamed.listAddress);
             if (selectedAddress != null) {
               _addressController.selectedAddressId.value = selectedAddress.id;
+              setState(() {
+                isAddressSelected = true;
+              });
             }
           },
           style: ElevatedButton.styleFrom(
@@ -324,6 +331,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         onChanged: (value) {
           setState(() {
             selectedShippingMethod = value;
+            isShippingMethodSelected = value != null;
           });
         },
         hint: const Text("Pilih Metode Pengiriman",
@@ -362,9 +370,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           const SizedBox(width: 12),
           ElevatedButton(
             onPressed: () {
-              if(voucherId != null) {
+              if (voucherId != null) {
                 _applyVoucher(voucherId!);
-              } 
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF3ABEF9),
@@ -486,6 +494,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     double totalDiscount = discount + pointsUsed;
     double finalTotal = totalPrice + shippingCost - totalDiscount;
 
+    bool isCheckoutEnabled =
+        isAddressSelected && isShippingMethodSelected && !isLoading;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -525,24 +536,32 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
-                _onCheckoutButtonPressed();
-              },
+              onPressed: isCheckoutEnabled ? _onCheckoutButtonPressed : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3ABEF9),
+                backgroundColor:
+                    isCheckoutEnabled ? const Color(0xFF3ABEF9) : Colors.grey,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text(
-                'Checkout',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      'Checkout',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -551,6 +570,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _onCheckoutButtonPressed() {
+    setState(() {
+      isLoading = true;
+    });
+
     final selectedAddressId = _addressController.selectedAddressId.value;
 
     final checkoutRequest = CheckoutRequest(
@@ -569,6 +592,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           .toList(),
     );
 
-    _checkoutController.checkout(checkoutRequest);
+    _checkoutController.checkout(checkoutRequest).then((_) {
+      setState(() {
+        isLoading = false;
+      });
+    }).catchError((error) {
+      setState(() {
+        isLoading = false;
+      });
+    });
   }
 }
