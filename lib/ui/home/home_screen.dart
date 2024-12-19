@@ -40,11 +40,12 @@ class _HomePageState extends State<HomePage> with RouteAware {
     routeObserver.unsubscribe(this);
     super.dispose();
   }
-  
+
   @override
   void didPopNext() {
     super.didPopNext();
     _profileController.onRefresh();
+    _loadCartItemCount();
   }
 
   Future<void> _loadCartItemCount() async {
@@ -114,7 +115,8 @@ class _HomePageState extends State<HomePage> with RouteAware {
                               clipBehavior: Clip.none,
                               children: [
                                 IconButton(
-                                  icon: const Icon(Icons.shopping_cart_outlined),
+                                  icon:
+                                      const Icon(Icons.shopping_cart_outlined),
                                   color: Colors.black,
                                   onPressed: () {
                                     final user =
@@ -122,7 +124,8 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                     if (user == null) {
                                       CustomDialog.showError(
                                         title: 'Peringatan',
-                                        message: 'Silahkan login terlebih dahulu',
+                                        message:
+                                            'Silahkan login terlebih dahulu',
                                         onConfirm: () {
                                           Get.toNamed(RoutesNamed.login);
                                         },
