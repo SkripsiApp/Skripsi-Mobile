@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:skripsi_app/controller/user_controller.dart';
 import 'package:skripsi_app/helper/navigation.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -7,7 +8,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 class PaymentWebView extends StatefulWidget {
   final String url;
 
-  const PaymentWebView({Key? key, required this.url}) : super(key: key);
+  const PaymentWebView({super.key, required this.url});
 
   @override
   State<PaymentWebView> createState() => _PaymentWebViewState();
@@ -16,6 +17,7 @@ class PaymentWebView extends StatefulWidget {
 class _PaymentWebViewState extends State<PaymentWebView> {
   late final WebViewController controller;
   final HomeController _homeController = Get.find<HomeController>();
+  final ProfileController _profileController = Get.put(ProfileController());
 
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
+            _profileController.onRefresh();
             _homeController.setCurrentIndex(0);
             Get.offAllNamed(RoutesNamed.state);
           },
