@@ -23,3 +23,31 @@ class UserProfile {
     );
   }
 }
+
+class EditProfile {
+  final String? name;
+  final String? username;
+  final String? email;
+
+  EditProfile({
+    this.name,
+    this.username,
+    this.email,
+  });
+
+  factory EditProfile.fromJson(Map<String, dynamic> json) {
+    return EditProfile(
+      name: json['name'],
+      username: json['username'],
+      email: json['email'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'username': username,
+      'email': email,
+    };
+  }
+}

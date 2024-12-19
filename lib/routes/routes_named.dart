@@ -14,4 +14,6 @@ abstract class RoutesNamed {
   static const String addAddress = '/add-address';
   static const String updateAddress = '/update-address';
   static const String listAddress = '/list-address';
+  static const String account = '/account';
+  static const String editProfile = '/edit-profile';
 }

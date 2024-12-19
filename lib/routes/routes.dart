@@ -1,4 +1,6 @@
 import 'package:skripsi_app/routes/routes_named.dart';
+import 'package:skripsi_app/ui/account/account_screen.dart';
+import 'package:skripsi_app/ui/account/edit_profile_screen.dart';
 import 'package:skripsi_app/ui/address/address_list.dart';
 import 'package:skripsi_app/ui/address/address_screen.dart';
 import 'package:skripsi_app/ui/address/update_screen.dart';
@@ -24,6 +26,8 @@ class AppRoutes {
     GetPage(name: RoutesNamed.state, page: () => const HomeState()),
     GetPage(name: RoutesNamed.listAddress, page: () => const AddressList()),
     GetPage(name: RoutesNamed.addAddress, page: () => AddressScreen()),
-    GetPage(name: RoutesNamed.updateAddress, page: () => EditAddressPage()),
+    GetPage(name: RoutesNamed.updateAddress, page: () => const EditAddressPage()),
+    GetPage(name: RoutesNamed.account, page: () => AccountScreen()),
+    GetPage(name: RoutesNamed.editProfile, page: () => const EditProfileScreen()),
   ];
 }

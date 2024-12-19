@@ -3,12 +3,14 @@ import 'package:skripsi_app/helper/dio_client.dart';
 import 'package:skripsi_app/model/address_model.dart';
 import 'package:skripsi_app/model/checkout_model.dart';
 import 'package:skripsi_app/model/register_model.dart';
+import 'package:skripsi_app/model/user_model.dart';
 import 'package:skripsi_app/response/address_response.dart';
 import 'package:skripsi_app/response/checkout_response.dart';
 import 'package:skripsi_app/response/login_response.dart';
 import 'package:skripsi_app/response/pagination_response.dart';
 import 'package:skripsi_app/response/product_response.dart';
 import 'package:skripsi_app/response/register_reposnse.dart';
+import 'package:skripsi_app/response/riwayat_response.dart';
 import 'package:skripsi_app/response/user_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skripsi_app/response/voucher_response.dart';
@@ -460,6 +462,128 @@ class ApiService {
           status: false,
           message: 'Gagal terhubung ke server',
           data: null,
+        );
+      }
+    }
+  }
+
+  // Edit Profile method
+  Future<EditProfileResponse> editProfile(EditProfile request) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return EditProfileResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+      );
+    }
+
+    try {
+      final response = await _dio.put(
+        '/profile',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: request.toJson(),
+      );
+
+      return EditProfileResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return EditProfileResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+          );
+        }
+        return EditProfileResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+        );
+      } else {
+        return EditProfileResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+        );
+      }
+    }
+  }
+
+  // Fetch Riwayat method
+  Future<RiwayatResponse> getRiwayat({String? search, int? page}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return RiwayatResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+        data: [],
+        pagination: Pagination(
+          limit: 0,
+          currentPage: 0,
+          lastPage: 0,
+        ),
+      );
+    }
+
+    try {
+      final response = await _dio.get(
+        '/transaction/profile',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        queryParameters: {
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (page != null) 'page': page,
+          'limit': 10,
+        },
+      );
+
+      return RiwayatResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return RiwayatResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+            data: [],
+            pagination: Pagination(
+              limit: 0,
+              currentPage: 0,
+              lastPage: 0,
+            ),
+          );
+        }
+        return RiwayatResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: [],
+          pagination: Pagination(
+            limit: 0,
+            currentPage: 0,
+            lastPage: 0,
+          ),
+        );
+      } else {
+        return RiwayatResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: [],
+          pagination: Pagination(
+            limit: 0,
+            currentPage: 0,
+            lastPage: 0,
+          ),
         );
       }
     }

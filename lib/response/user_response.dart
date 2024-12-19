@@ -19,3 +19,20 @@ class ProfileResponse {
     );
   }
 }
+
+class EditProfileResponse {
+  final bool status;
+  final String message;
+
+  EditProfileResponse({
+    required this.status,
+    required this.message,
+  });
+
+  factory EditProfileResponse.fromJson(Map<String, dynamic> json) {
+    return EditProfileResponse(
+      status: json['status'],
+      message: json['message'],
+    );
+  }
+}
