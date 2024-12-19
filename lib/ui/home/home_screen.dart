@@ -52,6 +52,21 @@ class _HomePageState extends State<HomePage> with RouteAware {
     _cartItemCount.value = cartItems.length;
   }
 
+  void _navigateToProfile() {
+    final user = _profileController.userProfile.value;
+    if (user == null) {
+      CustomDialog.showError(
+        title: 'Peringatan',
+        message: 'Silahkan login terlebih dahulu',
+        onConfirm: () {
+          Get.toNamed(RoutesNamed.login);
+        },
+      );
+    } else {
+      Get.toNamed(RoutesNamed.account);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -150,7 +165,9 @@ class _HomePageState extends State<HomePage> with RouteAware {
                             IconButton(
                               icon: const Icon(Icons.person_outline),
                               color: Colors.black,
-                              onPressed: () {},
+                              onPressed: () {
+                                _navigateToProfile();
+                              },
                             ),
                           ],
                         ),
@@ -215,11 +232,11 @@ class _HomePageState extends State<HomePage> with RouteAware {
                 final userProfile = _profileController.userProfile.value;
                 if (userProfile == null) {
                   return const Text(
-                    'Data tidak tersedia',
+                    '0',
                     style: TextStyle(
                       color: Colors.black,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 28,
                     ),
                   );
                 }

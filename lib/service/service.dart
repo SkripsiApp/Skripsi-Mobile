@@ -3,6 +3,7 @@ import 'package:skripsi_app/helper/dio_client.dart';
 import 'package:skripsi_app/model/address_model.dart';
 import 'package:skripsi_app/model/checkout_model.dart';
 import 'package:skripsi_app/model/register_model.dart';
+import 'package:skripsi_app/model/user_model.dart';
 import 'package:skripsi_app/response/address_response.dart';
 import 'package:skripsi_app/response/checkout_response.dart';
 import 'package:skripsi_app/response/login_response.dart';
@@ -460,6 +461,53 @@ class ApiService {
           status: false,
           message: 'Gagal terhubung ke server',
           data: null,
+        );
+      }
+    }
+  }
+
+  // Edit Profile method
+  Future<EditProfileResponse> editProfile(EditProfile request) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return EditProfileResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+      );
+    }
+
+    try {
+      final response = await _dio.put(
+        '/profile',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: request.toJson(),
+      );
+
+      return EditProfileResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return EditProfileResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+          );
+        }
+        return EditProfileResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+        );
+      } else {
+        return EditProfileResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
         );
       }
     }
