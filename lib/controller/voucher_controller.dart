@@ -1,5 +1,6 @@
 import 'package:skripsi_app/helper/dialog.dart';
 import 'package:skripsi_app/model/voucher_model.dart';
+import 'package:skripsi_app/routes/routes_named.dart';
 import 'package:skripsi_app/service/service.dart';
 import 'package:get/get.dart';
 
@@ -37,10 +38,11 @@ class VoucherController extends GetxController {
         lastPage.value = response.pagination.lastPage;
       } else {
         CustomDialog.showError(
-          title: 'Gagal',
+          title: 'Pesan Kesalahan',
           message: response.message,
           onConfirm: () {
             Get.back();
+            Get.toNamed(RoutesNamed.login);
           },
         );
       }
