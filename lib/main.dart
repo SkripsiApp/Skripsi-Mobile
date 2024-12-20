@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:skripsi_app/routes/routes.dart';
-import 'package:skripsi_app/ui/account/account_screen.dart';
 import 'package:skripsi_app/ui/home/home_state.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';

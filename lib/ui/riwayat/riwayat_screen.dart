@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:skripsi_app/controller/riwayat_controller.dart';
+import 'package:skripsi_app/ui/riwayat/riwayat_detail_screen.dart';
 
 class RiwayatScreen extends StatefulWidget {
   const RiwayatScreen({super.key});
@@ -13,7 +14,7 @@ class RiwayatScreen extends StatefulWidget {
 class _RiwayatScreenState extends State<RiwayatScreen> {
   final RiwayatController _controller = Get.put(RiwayatController());
   final ScrollController _scrollController = ScrollController();
-  String selectedFilter = 'Semua';
+  String selectedCategory = 'Semua';
   int currentPage = 1;
 
   final List<String> filters = [
@@ -28,39 +29,33 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (selectedFilter == 'Semua') {
-        _controller.fetchRiwayat();
-      } else {
-        _controller.fetchRiwayat(search: selectedFilter);
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _controller.loadMoreRiwayat();
       }
     });
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      _loadMore();
+  void _onCategorySelected(String category) {
+    setState(() {
+      selectedCategory = category;
+    });
+    if (category == 'Semua') {
+      _controller.fetchRiwayat();
+    } else {
+      _controller.fetchRiwayat(search: category);
     }
   }
 
-  void _loadMore() {
-    currentPage++;
-    _controller.fetchRiwayat(
-        search: selectedFilter == 'Semua' ? null : selectedFilter,
-        page: currentPage);
-  }
-
   Widget _buildCategoryContainer(String label) {
-    bool isSelected = selectedFilter == label;
+    bool isSelected = selectedCategory == label;
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
       child: GestureDetector(
@@ -82,18 +77,6 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  void _onCategorySelected(String category) {
-    setState(() {
-      selectedFilter = category;
-      currentPage = 1;
-    });
-    _controller.riwayatList.clear(); // Clear the existing list
-    _controller.fetchRiwayat(
-      search: category == 'Semua' ? null : category,
-      page: 1,
     );
   }
 
@@ -131,43 +114,44 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
           // Order list
           Expanded(
             child: Obx(() {
-              if (_controller.isLoading.value &&
-                  _controller.riwayatList.isEmpty) {
+              if (_controller.isLoading.value) {
                 return const Center(child: CircularProgressIndicator());
               } else if (_controller.riwayatList.isEmpty) {
                 return const Center(child: Text('Data pembelian tidak ada'));
               } else {
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _controller.riwayatList.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == _controller.riwayatList.length) {
-                        return _controller.isLoading.value
-                            ? const Center(child: CircularProgressIndicator())
-                            : const SizedBox.shrink();
-                      }
-                      final riwayat = _controller.riwayatList[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: OrderCard(
-                          orderNumber: riwayat.noReceipt,
-                          items: riwayat.items
-                              .map((item) => OrderItem(
-                                    image: item.image,
-                                    name: item.productName,
-                                    quantity: item.quantity,
-                                    price: item.totalPrice,
-                                    size: item.size,
-                                  ))
-                              .toList(),
-                          status: riwayat.status,
-                          date: riwayat.createdAt,
-                          totalPrice: riwayat.totalPrice,
-                        ),
+                return ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _controller.riwayatList.length +
+                      (_controller.isLoadingMore.value ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == _controller.riwayatList.length) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
                       );
-                    },
-                  );
+                    }
+                    final riwayat = _controller.riwayatList[index];
+                    return GestureDetector(
+                      onTap: () =>
+                          Get.to(() => DetailRiwayatScreen(riwayat: riwayat)),
+                      child: OrderCard(
+                        orderNumber: riwayat.noReceipt,
+                        items: riwayat.items
+                            .map((item) => OrderItem(
+                                  image: item.image,
+                                  name: item.productName,
+                                  quantity: item.quantity,
+                                  price: item.totalPrice,
+                                  size: item.size,
+                                ))
+                            .toList(),
+                        status: riwayat.status,
+                        date: riwayat.createdAt,
+                        totalPrice: riwayat.totalPrice,
+                      ),
+                    );
+                  },
+                );
               }
             }),
           ),
