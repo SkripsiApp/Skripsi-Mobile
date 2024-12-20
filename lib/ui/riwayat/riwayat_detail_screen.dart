@@ -52,7 +52,15 @@ class DetailRiwayatScreen extends StatelessWidget {
               content: _buildShippingInfo(),
             ),
             const SizedBox(height: 24),
-            if (riwayat.status == 'Dikirim') _buildCompleteOrderButton(context),
+            Obx(
+              () {
+                if (riwayat.status.toLowerCase() == 'dikirim') {
+                  return _buildCompleteOrderButton(context);
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -96,7 +104,7 @@ class DetailRiwayatScreen extends StatelessWidget {
           DateFormat('dd MMMM yyyy HH:mm')
               .format(DateTime.parse(riwayat.createdAt)),
         ),
-        _buildInfoRow('Status', riwayat.status, isStatus: true),
+        Obx(() => _buildInfoRow('Status', riwayat.status.value, isStatus: true)),
       ],
     );
   }
@@ -261,22 +269,36 @@ class DetailRiwayatScreen extends StatelessWidget {
 
   Widget _buildCompleteOrderButton(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () => _confirmOrderCompletion(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF3ABEF9),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, -3),
           ),
-        ),
-        child: const Text(
-          'Pesanan Selesai',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+        ],
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () => _confirmOrderCompletion(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF3ABEF9),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text(
+            'Pesanan Selesai',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -310,12 +332,9 @@ class DetailRiwayatScreen extends StatelessWidget {
     );
   }
 
-  void _completeOrder() {
-    // controller.markOrderAsComplete(riwayat.id).then((_) {
-    //   Get.back();
-    //   Get.snackbar('Sukses', 'Pesanan telah ditandai sebagai selesai');
-    // }).catchError((error) {
-    //   Get.snackbar('Error', 'Gagal menyelesaikan pesanan: $error');
-    // });
+  void _completeOrder() async {
+    final riwayatStatus = RiwayatStatus(id: riwayat.id, status: "Selesai");
+    await controller.updateRiwayat(riwayatStatus);
+    riwayat.status.value = "Selesai";
   }
 }

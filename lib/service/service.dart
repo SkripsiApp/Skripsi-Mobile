@@ -588,4 +588,53 @@ class ApiService {
       }
     }
   }
+
+  // Update Riwayat method
+  Future<RiwayatStatusResponse> updateRiwayat(String transactionId, String status) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      return RiwayatStatusResponse(
+        status: false,
+        message: 'Silahkan login terlebih dahulu',
+      );
+    }
+
+    try {
+      final response = await _dio.patch(
+        '/transaction/$transactionId/status',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: {
+          'status': status,
+        },
+      );
+
+      return RiwayatStatusResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          await prefs.remove('token');
+          return RiwayatStatusResponse(
+            status: false,
+            message: 'Sesi Anda telah berakhir. Silahkan login kembali.',
+          );
+        }
+        return RiwayatStatusResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+        );
+      } else {
+        return RiwayatStatusResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+        );
+      }
+    }
+  }
 }

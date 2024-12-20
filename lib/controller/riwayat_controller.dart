@@ -19,6 +19,10 @@ class RiwayatController extends GetxController {
     fetchRiwayat();
   }
 
+  void onRefresh() {
+    fetchRiwayat();
+  }
+  
   Future<void> fetchRiwayat({String? search, int? page}) async {
     try {
       if (page == null) {
@@ -61,5 +65,35 @@ class RiwayatController extends GetxController {
     currentPage.value = 1;
     lastPage.value = 1;
     riwayatList.clear();
+  }
+
+  // Update Riwayat
+  Future<void> updateRiwayat(RiwayatStatus data) async {
+    try {
+      isLoading.value = true;
+
+      final response = await _apiService.updateRiwayat(data.id, data.status);
+
+      if (response.status) {
+        CustomDialog.showSuccess(
+          title: 'Berhasil',
+          message: response.message,
+          onConfirm: () {
+            Get.back();
+          },
+        );
+        fetchRiwayat();
+      } else {
+        CustomDialog.showError(
+          title: 'Gagal',
+          message: response.message,
+          onConfirm: () {
+            Get.back();
+          },
+        );
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

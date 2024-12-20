@@ -59,7 +59,6 @@ class ProductController extends GetxController {
 
       if (response.status) {
         productDetail.value = response.data;
-        print('Product data: ${response.data}');
       } else {
         CustomDialog.showError(
           title: 'Gagal',

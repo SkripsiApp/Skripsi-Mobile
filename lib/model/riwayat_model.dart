@@ -1,8 +1,10 @@
+import 'package:get/get.dart';
+
 class RiwayatModel {
   final String id;
   final String noTransaction;
   final String noReceipt;
-  final String status;
+  final RxString status;
   final int originalPrice;
   final int totalPrice;
   final int totalPoint;
@@ -19,7 +21,7 @@ class RiwayatModel {
     required this.id,
     required this.noTransaction,
     required this.noReceipt,
-    required this.status,
+    required String status,
     required this.originalPrice,
     required this.totalPrice,
     required this.totalPoint,
@@ -31,7 +33,7 @@ class RiwayatModel {
     required this.shippingCost,
     required this.createdAt,
     required this.items,
-  });
+  }) : status = status.obs;
 
   factory RiwayatModel.fromJson(Map<String, dynamic> json) {
     return RiwayatModel(
@@ -79,6 +81,24 @@ class RiwayatItems {
       quantity: json['quantity'],
       size: json['size'],
       totalPrice: json['total_price'],
+    );
+  }
+}
+
+
+class RiwayatStatus {
+  final String id;
+  final String status;
+
+  RiwayatStatus({
+    required this.id,
+    required this.status,
+  });
+
+  factory RiwayatStatus.fromJson(Map<String, dynamic> json) {
+    return RiwayatStatus(
+      id: json['id'],
+      status: json['status'],
     );
   }
 }

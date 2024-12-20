@@ -156,7 +156,7 @@ class _CartScreenState extends State<CartScreen> {
       final cartKey = 'cart_$userId';
       final cartData = jsonEncode(items.map((item) => item.toJson()).toList());
       await prefs.setString(cartKey, cartData);
-      print("Cart data saved: $cartData");
+      // print("Cart data saved: $cartData");
     }
   }
 
