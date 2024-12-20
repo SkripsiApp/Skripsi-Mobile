@@ -8,7 +8,10 @@ class RiwayatController extends GetxController {
   final ApiService _apiService = ApiService();
 
   final isLoading = false.obs;
+  var isLoadingMore = false.obs;
   final riwayatList = <RiwayatModel>[].obs;
+  var currentPage = 1.obs;
+  var lastPage = 1.obs;
 
   @override
   void onInit() {
@@ -16,18 +19,22 @@ class RiwayatController extends GetxController {
     fetchRiwayat();
   }
 
-  void onRefresh() {
-    fetchRiwayat();
-  }
-
   Future<void> fetchRiwayat({String? search, int? page}) async {
     try {
-      isLoading.value = true;
+      if (page == null) {
+        isLoading.value = true;
+        riwayatList.clear();
+        currentPage.value = 1;
+      } else {
+        isLoadingMore.value = true;
+      }
 
       final response = await _apiService.getRiwayat(search: search, page: page ?? 1);
 
       if (response.status) {
-        riwayatList.assignAll(response.data);
+        riwayatList.addAll(response.data);
+        currentPage.value = response.pagination.currentPage;
+        lastPage.value = response.pagination.lastPage;
       } else {
         CustomDialog.showError(
           title: 'Pesan Kesalahan',
@@ -40,6 +47,19 @@ class RiwayatController extends GetxController {
       }
     } finally {
       isLoading.value = false;
+      isLoadingMore.value = false;
     }
+  }
+
+  Future<void> loadMoreRiwayat() async {
+    if (currentPage.value < lastPage.value && !isLoadingMore.value) {
+      await fetchRiwayat(page: currentPage.value + 1);
+    }
+  }
+
+  void resetPagination() {
+    currentPage.value = 1;
+    lastPage.value = 1;
+    riwayatList.clear();
   }
 }
