@@ -35,7 +35,6 @@ class RajaOngkirService {
           ),
         );
 
-        print('API Response for $courier: ${response.data}');
 
         if (response.statusCode == 200) {
           final results = response.data['rajaongkir']['results'] as List;
@@ -62,7 +61,6 @@ class RajaOngkirService {
 
       return allShippingServices;
     } catch (e) {
-      print('Detailed error: $e');
       throw Exception('Error fetching shipping costs: $e');
     }
   }

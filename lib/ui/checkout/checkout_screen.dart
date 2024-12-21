@@ -37,6 +37,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   bool isAddressSelected = false;
   bool isShippingMethodSelected = false;
+  bool isShippingMethodLoading = false;
   bool isLoading = false;
 
   @override
@@ -86,7 +87,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       if (selectedAddress != null) {
         setState(() {
-          isLoading = true;
+          isShippingMethodLoading = true;
         });
 
         final costs =
@@ -94,15 +95,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
         setState(() {
           shippingMethods = costs;
-          isLoading = false;
-          print('Updated shipping methods: $shippingMethods');
+          isShippingMethodLoading = false;
         });
       }
     } catch (e) {
       setState(() {
-        isLoading = false;
+        isShippingMethodLoading = false;
       });
-      print('Error fetching shipping costs: $e');
       Get.snackbar('Error', 'Gagal memuat biaya pengiriman');
     }
   }
@@ -342,20 +341,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          if (isLoading)
+          if (isShippingMethodLoading)
             const LinearProgressIndicator(
               color: Colors.blue,
               minHeight: 2,
             ),
-
           const SizedBox(height: 16),
-
           DropdownButtonFormField<Map<String, dynamic>>(
             value: selectedShippingMethod,
-            items: shippingMethods.isEmpty && !isLoading
+            items: shippingMethods.isEmpty && !isShippingMethodLoading
                 ? [
                     const DropdownMenuItem(
-                      child: Text('Pilih Metode Pengiriman'),
+                      child: Text(
+                        'Pilih Metode Pengiriman',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ]
                 : shippingMethods.map((method) {
@@ -414,7 +418,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
     );
   }
-
 
   Widget _buildVoucherSection() {
     return Container(
