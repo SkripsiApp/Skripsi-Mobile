@@ -3,6 +3,7 @@ class AddressModel {
   final String name;
   final String address;
   final String city;
+  final String? cityId;
   final String subdistric;
   final String zipCode;
   final String phone;
@@ -12,6 +13,7 @@ class AddressModel {
     required this.name,
     required this.address,
     required this.city,
+    this.cityId,
     required this.subdistric,
     required this.zipCode,
     required this.phone,
@@ -23,6 +25,7 @@ class AddressModel {
       name: json['name'],
       address: json['address'],
       city: json['city'],
+      cityId: json['city_id'],
       subdistric: json['subdistric'],
       zipCode: json['zip_code'],
       phone: json['phone'],
@@ -35,6 +38,7 @@ class AddressModel {
       'name': name,
       'address': address,
       'city': city,
+      'city_id': cityId,
       'subdistric': subdistric,
       'zip_code': zipCode,
       'phone': phone,
