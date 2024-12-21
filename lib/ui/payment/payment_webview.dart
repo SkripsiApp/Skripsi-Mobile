@@ -99,7 +99,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Pembayaran'),
+          title: const Text('Pembayaran', style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFF3ABEF9),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
