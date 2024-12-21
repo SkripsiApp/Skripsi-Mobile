@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skripsi_app/helper/dialog.dart';
@@ -17,6 +18,15 @@ class CheckoutController extends GetxController {
 
       if (response.status) {
         _clearCart();
+        Get.snackbar(
+          'Pembayaran Berhasil',
+          'Link pembayaran juga telah dikirim ke email Anda, Anda dapat melakukan pembayaran dari email tersebut.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 4),
+        );
+        
         Get.off(() => PaymentWebView(url: response.data!.paymentUrl));
       } else {
         CustomDialog.showError(

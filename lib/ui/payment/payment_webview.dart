@@ -51,23 +51,23 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         ),
         title: const Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.red),
+            Icon(Icons.info, color: Colors.blue),
             SizedBox(width: 8),
             Text(
-              'Konfirmasi',
+              'Info Pembayaran',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
         ),
         content: const Text(
-          'Apakah Anda yakin ingin membatalkan pembayaran?',
+          'Jika pembayaran belum selesai, Anda masih dapat dilakukan melalui link yang telah dikirim ke email Anda. Anda dapat kembali ke email untuk melanjutkan pembayaran.',
           style: TextStyle(fontSize: 16),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text(
-              'Tidak',
+              'Tutup',
               style: TextStyle(color: Colors.black),
             ),
           ),
@@ -78,10 +78,10 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               Get.offAllNamed(RoutesNamed.state);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.blue,
             ),
             child: const Text(
-              'Ya',
+              'Kembali ke Halaman Utama',
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -99,7 +99,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Pembayaran'),
+          title: const Text('Pembayaran', style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFF3ABEF9),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
