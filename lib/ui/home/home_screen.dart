@@ -289,19 +289,14 @@ class _HomePageState extends State<HomePage> with RouteAware {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildCategoryItem('assets/img/necklace.png', 'Kalung', () {
-              // print('Kalung clicked');
             }),
             _buildCategoryItem('assets/img/bracelet.png', 'Gelang', () {
-              // print('Gelang clicked');
             }),
             _buildCategoryItem('assets/img/ring.png', 'Cincin', () {
-              // print('Cincin clicked');
             }),
             _buildCategoryItem('assets/img/earrings.png', 'Anting', () {
-              // print('Anting clicked');
             }),
             _buildCategoryItem('assets/img/more.png', 'Lihat Semua', () {
-              // print('Lihat Semua clicked');
             }),
           ],
         ),

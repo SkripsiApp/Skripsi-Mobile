@@ -88,14 +88,14 @@ Future<List<CartItem>> getCartItems() async {
   final cartData = prefs.getString(cartKey);
 
   if (cartData == null || cartData.isEmpty) {
-    // print('Cart data is empty for user: $userId');
+    print('Cart data is empty for user: $userId');
     return [];
   }
 
   try {
     // Explicitly parse the JSON string
     final List<dynamic> cartList = jsonDecode(cartData);
-    // print('Cart data: $cartList');
+    print('Cart data: $cartList');
     return cartList
         .map((item) => CartItem(
               id: item['id'],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:skripsi_app/controller/address_controller.dart';
 import 'package:skripsi_app/controller/checkout_controller.dart';
+import 'package:skripsi_app/controller/raja_ongkir_controller.dart';
 import 'package:skripsi_app/controller/user_controller.dart';
 import 'package:skripsi_app/controller/voucher_controller.dart';
 import 'package:skripsi_app/model/cart_model.dart';
@@ -22,13 +23,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final VoucherController _voucherController = Get.put(VoucherController());
   final AddressController _addressController = Get.put(AddressController());
 
-  String? selectedShippingMethod;
-  final List<String> shippingMethods = [
-    "JNE - Regular",
-    "J&T - Express",
-    "SiCepat - Same Day",
-    "POS - Kilat Khusus"
-  ];
+  Map<String, dynamic>? selectedShippingMethod;
+  List<Map<String, dynamic>> shippingMethods = [];
 
   bool usePoints = false;
   double totalPrice = 400000;
@@ -41,6 +37,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   bool isAddressSelected = false;
   bool isShippingMethodSelected = false;
+  bool isShippingMethodLoading = false;
   bool isLoading = false;
 
   @override
@@ -50,6 +47,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     totalPrice =
         items.fold(0, (sum, item) => sum + (item.price * item.quantity));
     _loadUserPoints();
+    _fetchShippingCosts();
   }
 
   void _loadUserPoints() {
@@ -78,6 +76,33 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         discount = 0;
         Get.snackbar('Error', 'Voucher tidak ditemukan');
       });
+    }
+  }
+
+  void _fetchShippingCosts() async {
+    try {
+      final selectedAddress = _addressController.addressList.firstWhereOrNull(
+        (address) => address.id == _addressController.selectedAddressId.value,
+      );
+
+      if (selectedAddress != null) {
+        setState(() {
+          isShippingMethodLoading = true;
+        });
+
+        final costs =
+            await RajaOngkirService.getShippingCosts(selectedAddress.cityId!);
+
+        setState(() {
+          shippingMethods = costs;
+          isShippingMethodLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isShippingMethodLoading = false;
+      });
+      Get.snackbar('Error', 'Gagal memuat biaya pengiriman');
     }
   }
 
@@ -223,6 +248,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               setState(() {
                 isAddressSelected = true;
               });
+              _fetchShippingCosts();
             }
           },
           style: ElevatedButton.styleFrom(
@@ -305,40 +331,90 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildShippingMethod() {
     return Container(
       color: Colors.white,
-      child: DropdownButtonFormField<String>(
-        value: selectedShippingMethod,
-        items: shippingMethods
-            .map((method) => DropdownMenuItem<String>(
-                value: method,
-                child: Text(method,
-                    style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black))))
-            .toList(),
-        decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.grey),
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        ),
-        onChanged: (value) {
-          setState(() {
-            selectedShippingMethod = value;
-            isShippingMethodSelected = value != null;
-          });
-        },
-        hint: const Text("Pilih Metode Pengiriman",
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Metode Pengiriman",
             style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (isShippingMethodLoading)
+            const LinearProgressIndicator(
+              color: Colors.blue,
+              minHeight: 2,
+            ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<Map<String, dynamic>>(
+            value: selectedShippingMethod,
+            items: shippingMethods.isEmpty && !isShippingMethodLoading
+                ? [
+                    const DropdownMenuItem(
+                      child: Text(
+                        'Pilih Metode Pengiriman',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ]
+                : shippingMethods.map((method) {
+                    String courierName;
+
+                    courierName = method['name'];
+
+                    if (courierName == 'Jalur Nugraha Ekakurir (JNE)') {
+                      courierName = 'JNE';
+                    } else if (courierName ==
+                        'Citra Van Titipan Kilat (TIKI)') {
+                      courierName = 'TIKI';
+                    } else if (courierName == 'POS Indonesia (POS)') {
+                      courierName = 'POS';
+                    }
+
+                    return DropdownMenuItem<Map<String, dynamic>>(
+                      value: method,
+                      child: Text(
+                        '$courierName ${method['service']} - Rp ${method['price']} - (${method['etd']} hari) - ${method['description']}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            onChanged: (value) {
+              setState(() {
+                selectedShippingMethod = value;
+                shippingCost = value?['price']?.toDouble() ?? 0;
+                isShippingMethodSelected = value != null;
+              });
+            },
+            hint: const Text(
+              "Pilih Metode Pengiriman",
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Colors.black)),
+                color: Colors.black,
+              ),
+            ),
+            isDense: true,
+            isExpanded: true,
+          ),
+        ],
       ),
     );
   }
@@ -581,7 +657,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       addressId: selectedAddressId!,
       usePoint: usePoints,
       pointUsed: usePoints ? availablePoints : null,
-      courierName: selectedShippingMethod ?? "JNE - Regular",
+      courierName: selectedShippingMethod?['name'],
       shippingCost: shippingCost.toInt(),
       transactionDetail: items
           .map((item) => TransactionDetail(
@@ -600,6 +676,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       setState(() {
         isLoading = false;
       });
+      Get.snackbar('Error', 'Gagal melakukan checkout');
     });
   }
 }
