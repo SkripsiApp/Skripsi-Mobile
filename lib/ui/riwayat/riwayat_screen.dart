@@ -11,11 +11,10 @@ class RiwayatScreen extends StatefulWidget {
   State<RiwayatScreen> createState() => _RiwayatScreenState();
 }
 
-class _RiwayatScreenState extends State<RiwayatScreen> {
+class _RiwayatScreenState extends State<RiwayatScreen> with RouteAware {
   final RiwayatController _controller = Get.put(RiwayatController());
   final ScrollController _scrollController = ScrollController();
   String selectedCategory = 'Semua';
-  int currentPage = 1;
 
   final List<String> filters = [
     'Semua',
@@ -27,8 +26,18 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
   ];
 
   @override
+  void didPopNext() {
+    super.didPopNext();
+    _controller.fetchRiwayat(
+        search: selectedCategory == 'Semua' ? null : selectedCategory);
+  }
+
+  @override
   void initState() {
     super.initState();
+    _controller.fetchRiwayat(
+      search: selectedCategory == 'Semua' ? null : selectedCategory,
+    );
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
@@ -36,6 +45,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
       }
     });
   }
+
 
   @override
   void dispose() {
@@ -119,38 +129,46 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               } else if (_controller.riwayatList.isEmpty) {
                 return const Center(child: Text('Data pembelian tidak ada'));
               } else {
-                return ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _controller.riwayatList.length +
-                      (_controller.isLoadingMore.value ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == _controller.riwayatList.length) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    final riwayat = _controller.riwayatList[index];
-                    return GestureDetector(
-                      onTap: () =>
-                          Get.to(() => DetailRiwayatScreen(riwayat: riwayat)),
-                      child: OrderCard(
-                        orderNumber: riwayat.noReceipt,
-                        items: riwayat.items
-                            .map((item) => OrderItem(
-                                  image: item.image,
-                                  name: item.productName,
-                                  quantity: item.quantity,
-                                  price: item.totalPrice,
-                                  size: item.size,
-                                ))
-                            .toList(),
-                        status: riwayat.status,
-                        date: riwayat.createdAt,
-                        totalPrice: riwayat.totalPrice,
-                      ),
-                    );
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    _controller.fetchRiwayat(
+                        search: selectedCategory == 'Semua'
+                            ? null
+                            : selectedCategory);
                   },
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _controller.riwayatList.length +
+                        (_controller.isLoadingMore.value ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _controller.riwayatList.length) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      final riwayat = _controller.riwayatList[index];
+                      return GestureDetector(
+                        onTap: () =>
+                            Get.to(() => DetailRiwayatScreen(riwayat: riwayat)),
+                        child: OrderCard(
+                          orderNumber: riwayat.noReceipt,
+                          items: riwayat.items
+                              .map((item) => OrderItem(
+                                    image: item.image,
+                                    name: item.productName,
+                                    quantity: item.quantity,
+                                    price: item.totalPrice,
+                                    size: item.size,
+                                  ))
+                              .toList(),
+                          status: riwayat.status.value,
+                          date: riwayat.createdAt,
+                          totalPrice: riwayat.totalPrice,
+                        ),
+                      );
+                    },
+                  ),
                 );
               }
             }),

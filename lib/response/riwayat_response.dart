@@ -2,7 +2,7 @@ import 'package:skripsi_app/model/riwayat_model.dart';
 import 'package:skripsi_app/response/pagination_response.dart';
 
 class RiwayatResponse {
- final bool status;
+  final bool status;
   final String message;
   final List<RiwayatModel> data;
   final Pagination pagination;
@@ -16,13 +16,31 @@ class RiwayatResponse {
 
   factory RiwayatResponse.fromJson(Map<String, dynamic> json) {
     var list = json['data'] as List;
-    List<RiwayatModel> riwayatList = list.map((i) => RiwayatModel.fromJson(i)).toList();
+    List<RiwayatModel> riwayatList =
+        list.map((i) => RiwayatModel.fromJson(i)).toList();
 
     return RiwayatResponse(
       status: json['status'],
       message: json['message'],
       data: riwayatList,
       pagination: Pagination.fromJson(json['pagination']),
+    );
+  }
+}
+
+class RiwayatStatusResponse {
+  final bool status;
+  final String message;
+
+  RiwayatStatusResponse({
+    required this.status,
+    required this.message,
+  });
+
+  factory RiwayatStatusResponse.fromJson(Map<String, dynamic> json) {
+    return RiwayatStatusResponse(
+      status: json['status'],
+      message: json['message'],
     );
   }
 }

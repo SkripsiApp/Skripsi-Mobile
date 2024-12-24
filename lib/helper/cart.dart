@@ -64,6 +64,9 @@ void addToCart(Product product, String selectedSize) async {
   // Simpan keranjang setelah ditambahkan item
   await prefs.setString(cartKey, jsonEncode(cart));
 
+  // Log untuk memverifikasi apakah data keranjang berhasil disimpan
+  // print('Cart data saved: ${jsonEncode(cart)}');
+
   CustomDialog.showSuccess(
     title: 'Berhasil',
     message: '${product.name} ditambahkan ke keranjang.',
@@ -85,12 +88,14 @@ Future<List<CartItem>> getCartItems() async {
   final cartData = prefs.getString(cartKey);
 
   if (cartData == null || cartData.isEmpty) {
+    // print('Cart data is empty for user: $userId');
     return [];
   }
 
   try {
     // Explicitly parse the JSON string
     final List<dynamic> cartList = jsonDecode(cartData);
+    // print('Cart data: $cartList');
     return cartList
         .map((item) => CartItem(
               id: item['id'],
@@ -102,6 +107,7 @@ Future<List<CartItem>> getCartItems() async {
             ))
         .toList();
   } catch (e) {
+    // print("Error decoding cart data: $e");
     return [];
   }
 }

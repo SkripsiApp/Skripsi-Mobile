@@ -153,7 +153,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.toNamed(RoutesNamed.sendOTP);
+                      },
                       child: const Text(
                         'Lupa Password',
                         style: TextStyle(
