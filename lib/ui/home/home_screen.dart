@@ -486,7 +486,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Row(
