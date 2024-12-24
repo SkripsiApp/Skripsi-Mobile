@@ -5,6 +5,7 @@ import 'package:skripsi_app/model/checkout_model.dart';
 import 'package:skripsi_app/model/register_model.dart';
 import 'package:skripsi_app/model/user_model.dart';
 import 'package:skripsi_app/response/address_response.dart';
+import 'package:skripsi_app/response/chatbot_response.dart';
 import 'package:skripsi_app/response/checkout_response.dart';
 import 'package:skripsi_app/response/forget_password_response.dart';
 import 'package:skripsi_app/response/login_response.dart';
@@ -721,6 +722,35 @@ class ApiService {
         return ResetPasswordResponse(
           status: false,
           message: 'Gagal terhubung ke server',
+        );
+      }
+    }
+  }
+
+  // Chatbot method
+  Future<ChatbotResponse> chatbot(String question) async {
+    try {
+      final response = await _dio.post(
+        '/chatbot',
+        data: {
+          'question': question,
+        },
+      );
+
+      return ChatbotResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return ChatbotResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: null,
+        );
+      } else {
+        return ChatbotResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: null,
         );
       }
     }

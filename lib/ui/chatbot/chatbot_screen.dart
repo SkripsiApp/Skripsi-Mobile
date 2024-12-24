@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:skripsi_app/controller/chatbot_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatbotScreen extends StatefulWidget {
   const ChatbotScreen({super.key});
@@ -8,6 +12,39 @@ class ChatbotScreen extends StatefulWidget {
 }
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
+  final ChatbotController _controller = Get.put(ChatbotController());
+  final TextEditingController _textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  void _scrollToBottom() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _openWhatsApp(String phoneNumber) async {
+    final url = Uri.parse('https://wa.me/$phoneNumber');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar(
+          'Error',
+          'Could not open WhatsApp',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Could not open WhatsApp',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,25 +62,37 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildBotMessage("Hello! How can I help you today?", "11:35"),
-                _buildUserMessage(
-                    "Hi! I have a question about your services.", "11:35"),
-                _buildBotMessage(
-                    "I'd be happy to help. What would you like to know?",
-                    "11:35"),
-              ],
-            ),
+            child: Obx(() {
+              WidgetsBinding.instance
+                  .addPostFrameCallback((_) => _scrollToBottom());
+              return ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(16),
+                itemCount: _controller.messages.length,
+                itemBuilder: (context, index) {
+                  final message = _controller.messages[index];
+                  return message.isUser
+                      ? _buildUserMessage(message)
+                      : _buildBotMessage(message);
+                },
+              );
+            }),
           ),
+          Obx(() => _controller.isLoading.value
+              ? const LinearProgressIndicator(
+                  color: Color(0xFF3ABEF9),
+                )
+              : const SizedBox.shrink()),
           _buildInputField(),
         ],
       ),
     );
   }
 
-  Widget _buildBotMessage(String message, String time) {
+  Widget _buildBotMessage(ChatMessage message) {
+    final RegExp whatsappLinkRegex = RegExp(r'https://wa\.me/(\d+)');
+    final Match? match = whatsappLinkRegex.firstMatch(message.content);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -62,18 +111,43 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               const SizedBox(height: 2),
               Container(
                 constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.7,
+                  maxWidth: Get.width * 0.7,
                 ),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.lightBlue.shade50,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(message),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(message.content),
+                    if (match != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: ElevatedButton(
+                          onPressed: () => _openWhatsApp(match.group(1)!),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  8), // Membuat tombol sedikit melengkung
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                          ),
+                          child: const Text('Hubungi Admin via WhatsApp'),
+                        ),
+                      ),
+                    if (message.images != null && message.images!.isNotEmpty)
+                      ..._buildImageList(message.images!),
+                  ],
+                ),
               ),
               const SizedBox(height: 4),
               Text(
-                time,
+                DateFormat('HH:mm').format(message.timestamp),
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: 10,
@@ -86,7 +160,31 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     );
   }
 
-  Widget _buildUserMessage(String message, String time) {
+  List<Widget> _buildImageList(List<String> images) {
+    return [
+      const SizedBox(height: 8),
+      ...images.map((url) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Image.network(
+              url,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
+                );
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return const Text('Failed to load image');
+              },
+            ),
+          )),
+    ];
+  }
+
+  Widget _buildUserMessage(ChatMessage message) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -106,18 +204,18 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               const SizedBox(height: 2),
               Container(
                 constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.7,
+                  maxWidth: Get.width * 0.7,
                 ),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.lightBlue.shade50,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(message),
+                child: Text(message.content),
               ),
               const SizedBox(height: 4),
               Text(
-                time,
+                DateFormat('HH:mm').format(message.timestamp),
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: 10,
@@ -148,6 +246,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         children: [
           Expanded(
             child: TextField(
+              controller: _textController,
               decoration: InputDecoration(
                 hintText: 'Apa yang ingin anda tanyakan?',
                 filled: true,
@@ -175,7 +274,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.send, color: Colors.white),
-              onPressed: () {},
+              onPressed: () {
+                final question = _textController.text;
+                if (question.isNotEmpty) {
+                  _controller.sendMessage(question);
+                  _textController.clear();
+                  Future.delayed(
+                      const Duration(milliseconds: 100), _scrollToBottom);
+                }
+              },
             ),
           ),
         ],
@@ -183,4 +290,3 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     );
   }
 }
-
