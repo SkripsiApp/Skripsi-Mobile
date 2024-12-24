@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:skripsi_app/controller/chatbot_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatbotScreen extends StatefulWidget {
   const ChatbotScreen({super.key});
@@ -21,6 +22,27 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
+  }
+
+  void _openWhatsApp(String phoneNumber) async {
+    final url = Uri.parse('https://wa.me/$phoneNumber');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar(
+          'Error',
+          'Could not open WhatsApp',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Could not open WhatsApp',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   @override
@@ -56,11 +78,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               );
             }),
           ),
-
           Obx(() => _controller.isLoading.value
               ? const LinearProgressIndicator(
-                color: Color(0xFF3ABEF9),
-              )
+                  color: Color(0xFF3ABEF9),
+                )
               : const SizedBox.shrink()),
           _buildInputField(),
         ],
@@ -69,6 +90,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   }
 
   Widget _buildBotMessage(ChatMessage message) {
+    final RegExp whatsappLinkRegex = RegExp(r'https://wa\.me/(\d+)');
+    final Match? match = whatsappLinkRegex.firstMatch(message.content);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -98,6 +122,24 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(message.content),
+                    if (match != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: ElevatedButton(
+                          onPressed: () => _openWhatsApp(match.group(1)!),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  8), // Membuat tombol sedikit melengkung
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                          ),
+                          child: const Text('Hubungi Admin via WhatsApp'),
+                        ),
+                      ),
                     if (message.images != null && message.images!.isNotEmpty)
                       ..._buildImageList(message.images!),
                   ],
@@ -237,7 +279,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 if (question.isNotEmpty) {
                   _controller.sendMessage(question);
                   _textController.clear();
-                  Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+                  Future.delayed(
+                      const Duration(milliseconds: 100), _scrollToBottom);
                 }
               },
             ),
