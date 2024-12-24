@@ -6,6 +6,7 @@ import 'package:skripsi_app/ui/address/address_screen.dart';
 import 'package:skripsi_app/ui/address/update_screen.dart';
 import 'package:skripsi_app/ui/cart/cart_screen.dart';
 import 'package:skripsi_app/ui/checkout/checkout_screen.dart';
+import 'package:skripsi_app/ui/forget-password/send_otp_screen.dart';
 import 'package:skripsi_app/ui/home/home_screen.dart';
 import 'package:skripsi_app/ui/home/home_state.dart';
 import 'package:skripsi_app/ui/login/login_screen.dart';
@@ -29,5 +30,6 @@ class AppRoutes {
     GetPage(name: RoutesNamed.updateAddress, page: () => const EditAddressPage()),
     GetPage(name: RoutesNamed.account, page: () => AccountScreen()),
     GetPage(name: RoutesNamed.editProfile, page: () => const EditProfileScreen()),
+    GetPage(name: RoutesNamed.sendOTP, page: () => const SendOTPScreen()),
   ];
 }

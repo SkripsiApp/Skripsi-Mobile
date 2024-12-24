@@ -6,6 +6,7 @@ import 'package:skripsi_app/model/register_model.dart';
 import 'package:skripsi_app/model/user_model.dart';
 import 'package:skripsi_app/response/address_response.dart';
 import 'package:skripsi_app/response/checkout_response.dart';
+import 'package:skripsi_app/response/forget_password_response.dart';
 import 'package:skripsi_app/response/login_response.dart';
 import 'package:skripsi_app/response/pagination_response.dart';
 import 'package:skripsi_app/response/product_response.dart';
@@ -631,6 +632,93 @@ class ApiService {
         );
       } else {
         return RiwayatStatusResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+        );
+      }
+    }
+  }
+
+  // Send OTP method
+  Future<SendOTPResponse> sendOTP(String email) async {
+    try {
+      final response = await _dio.post(
+        '/forgot-password',
+        data: {
+          'email': email,
+        },
+      );
+
+      return SendOTPResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return SendOTPResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+        );
+      } else {
+        return SendOTPResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+        );
+      }
+    }
+  }
+
+  // Verify OTP method
+  Future<VerifyOTPResponse> verifyOTP(String email, String otp) async {
+    try {
+      final response = await _dio.post(
+        '/verify-otp',
+        data: {
+          'email': email,
+          'otp': otp,
+        },
+      );
+
+      return VerifyOTPResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return VerifyOTPResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+        );
+      } else {
+        return VerifyOTPResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+        );
+      }
+    }
+  }
+
+  void setAuthToken(String token) {
+    _dio.options.headers['Authorization'] = 'Bearer $token';
+  }
+  
+  // New Password method
+  Future<ResetPasswordResponse> resetPassword(String password, String confirmPassword) async {
+    try {
+      final response = await _dio.post(
+        '/new-password',
+        data: {
+          'password': password,
+          'confirm_password': confirmPassword,
+        },
+      );
+
+      return ResetPasswordResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return ResetPasswordResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+        );
+      } else {
+        return ResetPasswordResponse(
           status: false,
           message: 'Gagal terhubung ke server',
         );
