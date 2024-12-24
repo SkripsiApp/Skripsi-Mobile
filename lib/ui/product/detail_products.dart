@@ -26,7 +26,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
           },
         ),
         title: const Text(
-          'Product Details',
+          'Produk Detail',
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
