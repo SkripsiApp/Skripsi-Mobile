@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skripsi_app/controller/voucher_controller.dart';
+import 'package:skripsi_app/helper/route_observer.dart';
 
 class VoucherScreen extends StatefulWidget {
   const VoucherScreen({super.key});
@@ -9,8 +11,30 @@ class VoucherScreen extends StatefulWidget {
   State<VoucherScreen> createState() => _VoucherScreenState();
 }
 
-class _VoucherScreenState extends State<VoucherScreen> {
+class _VoucherScreenState extends State<VoucherScreen> with RouteAware {
   final VoucherController voucherController = Get.put(VoucherController());
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    SharedPreferences.getInstance().then((prefs) {
+      final token = prefs.getString('token') ?? '';
+      if (token.isNotEmpty) {
+        voucherController.refresh();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:skripsi_app/controller/user_controller.dart';
+import 'package:skripsi_app/controller/voucher_controller.dart';
 import 'package:skripsi_app/helper/dialog.dart';
 import 'package:skripsi_app/service/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +30,12 @@ class LoginController extends GetxController {
         ProfileController profileController = Get.find();
         profileController.checkLoginStatus();
         
+        // Refresh VoucherController
+        if (Get.isRegistered<VoucherController>()) {
+          final voucherController = Get.find<VoucherController>();
+          voucherController.refresh();
+        }
+
         // Muat keranjang berdasarkan user
         // final cartKey = 'cart_${response.data!.id}';
         // prefs.getString(cartKey);

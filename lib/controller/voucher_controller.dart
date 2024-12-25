@@ -19,6 +19,13 @@ class VoucherController extends GetxController {
     fetchVouchers();
   }
 
+  @override
+  void refresh() {
+    voucherList.clear();
+    currentPage.value = 1;
+    fetchVouchers();
+  }
+
   Future<void> fetchVouchers({String? search, int? page}) async {
     try {
       if (page == null) {
