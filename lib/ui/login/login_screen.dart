@@ -106,19 +106,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     return ElevatedButton(
                       onPressed: _loginController.isLoading.value
                           ? null
-                          : () {
-                              _loginController
-                                  .login(
+                          : () async {
+                              final bool loginSuccess =
+                                  await _loginController.login(
                                 _emailController.text,
                                 _passwordController.text,
-                              ).then((value) async {
+                              );
+
+                              if (loginSuccess) {
                                 final prefs =
                                     await SharedPreferences.getInstance();
                                 await prefs.setInt('currentIndex', 0);
-
-                                // Arahkan ke halaman utama setelah login
                                 Get.offAllNamed(RoutesNamed.state);
-                              });
+                              }
                             },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3ABEF9),

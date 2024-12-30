@@ -147,6 +147,47 @@ class ApiService {
     }
   }
 
+  // Fetch top sold products method
+  Future<ProductResponse> getProductsTopSold({String? search, int? page}) async {
+    try {
+      final response = await _dio.get(
+        '/products/top-sold',
+        queryParameters: {
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (page != null) 'page': page,
+          'limit': 4,
+        },
+      );
+
+      return ProductResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return ProductResponse(
+          status: false,
+          message:
+              e.response?.data['message'] ?? 'Terjadi kesalahan pada server',
+          data: [],
+          pagination: Pagination(
+            limit: 0,
+            currentPage: 0,
+            lastPage: 0,
+          ),
+        );
+      } else {
+        return ProductResponse(
+          status: false,
+          message: 'Gagal terhubung ke server',
+          data: [],
+          pagination: Pagination(
+            limit: 0,
+            currentPage: 0,
+            lastPage: 0,
+          ),
+        );
+      }
+    }
+  }
+
   // Fetch product detail method
   Future<ProductDetailResponse> getProductDetail(String productId) async {
     try {

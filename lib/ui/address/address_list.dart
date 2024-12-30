@@ -244,11 +244,15 @@ class _AddressListState extends State<AddressList> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        address.address,
-                        style: const TextStyle(
-                          color: Color(0xFF9098B1),
-                          fontSize: 14,
+                      Flexible(
+                        child: Text(
+                          address.address,
+                          style: const TextStyle(
+                            color: Color(0xFF9098B1),
+                            fontSize: 14,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines:2,
                         ),
                       ),
                       IconButton(

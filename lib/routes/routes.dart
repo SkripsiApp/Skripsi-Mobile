@@ -26,7 +26,7 @@ class AppRoutes {
     GetPage(name: RoutesNamed.checkout, page: () => const CheckoutScreen()),
     GetPage(name: RoutesNamed.state, page: () => const HomeState()),
     GetPage(name: RoutesNamed.listAddress, page: () => const AddressList()),
-    GetPage(name: RoutesNamed.addAddress, page: () => AddressScreen()),
+    GetPage(name: RoutesNamed.addAddress, page: () => const AddressScreen()),
     GetPage(name: RoutesNamed.updateAddress, page: () => const EditAddressPage()),
     GetPage(name: RoutesNamed.account, page: () => AccountScreen()),
     GetPage(name: RoutesNamed.editProfile, page: () => const EditProfileScreen()),

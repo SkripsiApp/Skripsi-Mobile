@@ -36,7 +36,7 @@ class RiwayatController extends GetxController {
       final response = await _apiService.getRiwayat(search: search, page: page ?? 1);
 
       if (response.status) {
-        riwayatList.addAll(response.data);
+        riwayatList.assignAll(response.data);
         currentPage.value = response.pagination.currentPage;
         lastPage.value = response.pagination.lastPage;
       } else {

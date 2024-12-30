@@ -29,7 +29,7 @@ class ChatbotController extends GetxController {
           content: response.data?.answer ?? 'Sorry, I couldn\'t process that.',
           isUser: false,
           timestamp: DateTime.now(),
-          images: response.data?.images,
+          recommendation: response.data?.recommendation ?? [],
         ));
       } else {
         // Add error message
@@ -56,12 +56,12 @@ class ChatMessage {
   final String content;
   final bool isUser;
   final DateTime timestamp;
-  final List<String>? images;
+  final List<ProductRecommendation>? recommendation;
 
   ChatMessage({
     required this.content,
     required this.isUser,
     required this.timestamp,
-    this.images,
+    this.recommendation,
   });
 }

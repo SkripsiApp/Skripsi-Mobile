@@ -15,7 +15,7 @@ class _ProductScreenState extends State<ProductScreen> {
   final ProductController _controller = Get.put(ProductController());
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  String selectedCategory = Get.arguments?? 'Semua';
+  String selectedCategory = Get.arguments?? 'Lihat Semua';
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +82,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 _buildCategoryContainer('Kalung', selectedCategory == 'Kalung'),
                 _buildCategoryContainer('Gelang', selectedCategory == 'Gelang'),
                 _buildCategoryContainer('Anting', selectedCategory == 'Anting'),
+                _buildCategoryContainer('Liontin', selectedCategory == 'Liontin'),
               ],
             ),
           ),
@@ -148,6 +149,7 @@ class _ProductScreenState extends State<ProductScreen> {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.min,
             children: [
               ClipRRect(
@@ -167,7 +169,6 @@ class _ProductScreenState extends State<ProductScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Text(
@@ -179,7 +180,6 @@ class _ProductScreenState extends State<ProductScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Row(
@@ -202,7 +202,6 @@ class _ProductScreenState extends State<ProductScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Row(
@@ -250,41 +249,49 @@ class _ProductScreenState extends State<ProductScreen> {
           child: CircularProgressIndicator(),
         );
       }
-      return GridView.builder(
-        controller: _scrollController,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 0.85,
-        ),
-        itemCount: _controller.productList.length +
-            (_controller.isLoadingMore.value ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == _controller.productList.length) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          final product = _controller.productList[index];
-          return _buildProductCard(
-            product.id,
-            product.name,
-            'Rp ${product.price}',
-            product.image,
-            '${product.sold} Terjual',
-            product.category,
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final double mainAxisExtent = constraints.maxWidth / 2 + 30;
+
+          return GridView.builder(
+            shrinkWrap: true,
+            controller: _scrollController,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 12,
+              mainAxisExtent: mainAxisExtent,
+            ),
+            itemCount: _controller.productList.length +
+                (_controller.isLoadingMore.value ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == _controller.productList.length) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              final product = _controller.productList[index];
+              return _buildProductCard(
+                product.id,
+                product.name,
+                'Rp ${product.price}',
+                product.image,
+                '${product.sold} Terjual',
+                product.category,
+              );
+            },
           );
         },
       );
     });
   }
 
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (selectedCategory == 'Semua') {
+      if (selectedCategory == 'Semua' || selectedCategory == 'Lihat Semua') {
         _controller.fetchProducts();
       } else {
         _controller.fetchProducts(search: selectedCategory);
@@ -310,7 +317,7 @@ class _ProductScreenState extends State<ProductScreen> {
     setState(() {
       selectedCategory = category;
     });
-    if (category == 'Semua') {
+    if (selectedCategory == 'Semua' || selectedCategory == 'Lihat Semua') {
       _controller.fetchProducts();
     } else {
       _controller.fetchProducts(search: category);

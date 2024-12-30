@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart' as root_bundle;
+import 'dart:convert';
 import 'package:skripsi_app/controller/address_controller.dart';
 import 'package:skripsi_app/model/address_model.dart';
 
@@ -15,7 +17,6 @@ class _EditAddressPageState extends State<EditAddressPage> {
 
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();
-  final _cityController = TextEditingController();
   final _subdistrictController = TextEditingController();
   final _zipCodeController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -23,11 +24,59 @@ class _EditAddressPageState extends State<EditAddressPage> {
   final AddressController _addressControllerInstance =
       Get.find<AddressController>();
 
+  String? selectedProvince;
+  String? selectedCity;
+  List<String> cityList = [];
+
+  Map<String, List<String>> citiesByProvince = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCitiesData();
+  }
+
+  Future<void> _loadCitiesData() async {
+    // Load the JSON file from assets
+    final String response =
+        await root_bundle.rootBundle.loadString('assets/data/city.json');
+    final Map<String, dynamic> data = jsonDecode(response);
+
+    setState(() {
+      citiesByProvince = data.map<String, List<String>>((key, value) {
+        return MapEntry(key, List<String>.from(value));
+      });
+      _initializeFields();
+    });
+  }
+
+  void _initializeFields() {
+    final AddressModel address = Get.arguments;
+    _nameController.text = address.name;
+    _addressController.text = address.address;
+    selectedCity = address.city;
+    _subdistrictController.text = address.subdistric;
+    _zipCodeController.text = address.zipCode;
+    _phoneController.text = address.phone;
+
+    // Set selectedProvince based on selectedCity
+    citiesByProvince.forEach((province, cities) {
+      if (cities.contains(selectedCity)) {
+        selectedProvince = province;
+        cityList = cities;
+      }
+    });
+
+    // Ensure selectedCity is in the cityList
+    if (!cityList.contains(selectedCity)) {
+      selectedCity = null;
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
     _addressController.dispose();
-    _cityController.dispose();
     _subdistrictController.dispose();
     _zipCodeController.dispose();
     _phoneController.dispose();
@@ -36,14 +85,6 @@ class _EditAddressPageState extends State<EditAddressPage> {
 
   @override
   Widget build(BuildContext context) {
-    final AddressModel address = Get.arguments;
-    _nameController.text = address.name;
-    _addressController.text = address.address;
-    _cityController.text = address.city;
-    _subdistrictController.text = address.subdistric;
-    _zipCodeController.text = address.zipCode;
-    _phoneController.text = address.phone;
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF3ABEF9),
@@ -90,13 +131,9 @@ class _EditAddressPageState extends State<EditAddressPage> {
                           : null,
                     ),
                     const SizedBox(height: 24),
-                    _buildInputField(
-                      'Kota / Kabupaten',
-                      controller: _cityController,
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Kota/Kabupaten wajib diisi'
-                          : null,
-                    ),
+                    _buildProvinceDropdown(),
+                    const SizedBox(height: 24),
+                    _buildCityDropdown(),
                     const SizedBox(height: 24),
                     _buildInputField(
                       'Kecamatan',
@@ -134,7 +171,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: _buildSaveAddressButton(address),
+              child: _buildSaveAddressButton(Get.arguments),
             ),
           ],
         ),
@@ -188,6 +225,108 @@ class _EditAddressPageState extends State<EditAddressPage> {
     );
   }
 
+  Widget _buildProvinceDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Pilih Provinsi',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.lightBlue),
+            ),
+          ),
+          value: selectedProvince,
+          items: citiesByProvince.keys
+              .map((province) => DropdownMenuItem<String>(
+                    value: province,
+                    child: Text(province,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500)),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedProvince = value;
+              selectedCity = null; // Reset city selection
+              cityList = citiesByProvince[value!] ?? [];
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCityDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Pilih Kota / Kabupaten',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.lightBlue),
+            ),
+          ),
+          value: selectedCity,
+          items: cityList
+              .map((city) => DropdownMenuItem<String>(
+                    value: city,
+                    child: Text(city,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500)),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedCity = value;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildSaveAddressButton(AddressModel address) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -213,7 +352,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
                         id: address.id, // Preserve the original address ID
                         name: _nameController.text.trim(),
                         address: _addressController.text.trim(),
-                        city: _cityController.text.trim(),
+                        city: selectedCity ?? '',
                         subdistric: _subdistrictController.text.trim(),
                         zipCode: _zipCodeController.text.trim(),
                         phone: _phoneController.text.trim(),
@@ -251,4 +390,3 @@ class _EditAddressPageState extends State<EditAddressPage> {
     );
   }
 }
-
