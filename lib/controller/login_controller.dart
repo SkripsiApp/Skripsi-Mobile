@@ -8,10 +8,9 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 
 class LoginController extends GetxController {
   final ApiService _apiService = ApiService();
-
   final isLoading = false.obs;
 
-  Future<void> login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
     try {
       isLoading.value = true;
 
@@ -21,24 +20,22 @@ class LoginController extends GetxController {
         // Simpan token ke local storage
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', response.data!.token);
-
         await prefs.setString('user_id', response.data!.id);
 
-        DateTime expiryDate = JwtDecoder.getExpirationDate(response.data!.token);
+        DateTime expiryDate =
+            JwtDecoder.getExpirationDate(response.data!.token);
         await prefs.setString('token_expiry', expiryDate.toIso8601String());
 
         ProfileController profileController = Get.find();
         profileController.checkLoginStatus();
-        
+
         // Refresh VoucherController
         if (Get.isRegistered<VoucherController>()) {
           final voucherController = Get.find<VoucherController>();
           voucherController.refresh();
         }
 
-        // Muat keranjang berdasarkan user
-        // final cartKey = 'cart_${response.data!.id}';
-        // prefs.getString(cartKey);
+        return true;
       } else {
         CustomDialog.showError(
           title: 'Gagal',
@@ -47,7 +44,17 @@ class LoginController extends GetxController {
             Get.back();
           },
         );
+        return false;
       }
+    } catch (e) {
+      CustomDialog.showError(
+        title: 'Error',
+        message: 'Terjadi kesalahan saat login',
+        onConfirm: () {
+          Get.back();
+        },
+      );
+      return false;
     } finally {
       isLoading.value = false;
     }

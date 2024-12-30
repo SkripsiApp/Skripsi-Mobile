@@ -134,7 +134,7 @@ class DetailRiwayatScreen extends StatelessWidget {
   Widget _buildStatusChip(String status) {
     Color chipColor;
     switch (status.toLowerCase()) {
-      case 'belum dibayar':
+      case 'pending':
         chipColor = Colors.orange;
         break;
       case 'dibayar':

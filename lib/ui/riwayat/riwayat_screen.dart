@@ -11,26 +11,26 @@ class RiwayatScreen extends StatefulWidget {
   State<RiwayatScreen> createState() => _RiwayatScreenState();
 }
 
-class _RiwayatScreenState extends State<RiwayatScreen> with RouteAware {
+class _RiwayatScreenState extends State<RiwayatScreen> {
   final RiwayatController _controller = Get.put(RiwayatController());
   final ScrollController _scrollController = ScrollController();
   String selectedCategory = 'Semua';
 
   final List<String> filters = [
     'Semua',
-    'Belum Dibayar',
+    'Pending',
     'Dibayar',
     'Dibatalkan',
     'Dikirim',
     'Selesai'
   ];
 
-  @override
-  void didPopNext() {
-    super.didPopNext();
-    _controller.fetchRiwayat(
-        search: selectedCategory == 'Semua' ? null : selectedCategory);
-  }
+  // @override
+  // void didPopNext() {
+  //   super.didPopNext();
+  //   _controller.fetchRiwayat(
+  //       search: selectedCategory == 'Semua' ? null : selectedCategory);
+  // }
 
   @override
   void initState() {
@@ -197,7 +197,7 @@ class OrderCard extends StatelessWidget {
 
   Color getStatusColor() {
     switch (status.toLowerCase()) {
-      case 'belum dibayar':
+      case 'pending':
         return Colors.orange;
       case 'dibayar':
         return Colors.blue;

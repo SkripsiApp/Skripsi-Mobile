@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:skripsi_app/controller/user_controller.dart';
 import 'package:skripsi_app/helper/cart.dart';
 import 'package:skripsi_app/helper/dialog.dart';
+import 'package:skripsi_app/helper/menu.dart';
 import 'package:skripsi_app/helper/navigation.dart';
 import 'package:skripsi_app/helper/route_observer.dart';
 import 'package:skripsi_app/routes/routes_named.dart';
@@ -68,8 +69,20 @@ class _HomePageState extends State<HomePage> with RouteAware {
     }
   }
 
+
+  List<Menu> menuIcon = [
+    Menu(image: 'assets/img/necklace2.png', text: "Kalung"),
+    Menu(image: 'assets/img/bracelet.png', text: "Gelang"),
+    Menu(image: 'assets/img/ring.png', text: "Cincin"),
+    Menu(image: 'assets/img/earrings.png', text: "Anting"),
+    Menu(image: 'assets/img/necklace.png', text: "Liontin"),
+    Menu(image: 'assets/img/more.png', text: "Lihat Semua"),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return RefreshIndicator(
       onRefresh: () async {
         _profileController.onRefresh();
@@ -82,7 +95,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
               children: [
                 Container(
                   width: double.infinity,
-                  height: 200,
+                  height: size.height * 0.25,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage('assets/img/header.png'),
@@ -95,9 +108,9 @@ class _HomePageState extends State<HomePage> with RouteAware {
             Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: SizedBox(
-                    height: 56,
+                    height: size.height * 0.07,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -183,12 +196,20 @@ class _HomePageState extends State<HomePage> with RouteAware {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 60),
+                      SizedBox(height: size.height * 0.05),
                       _buildPointsCard(),
-                      const SizedBox(height: 24),
-                      _buildCategoriesSection(),
-                      const SizedBox(height: 24),
-                      _buildBestSellerSection(),
+                      SizedBox(height: size.height * 0.03),
+                      const Text(
+                        'Kategori',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: size.height * 0.02),
+                      _buildCategoriesSection(size),
+                      SizedBox(height: size.height * 0.02),
+                      _buildBestSellerSection(size),
                     ],
                   ),
                 ),
@@ -200,7 +221,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
     );
   }
 
-  Widget _buildPointsCard() {
+ Widget _buildPointsCard() {
     return Align(
       alignment: Alignment.center,
       child: Container(
@@ -210,7 +231,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withOpacity(0.3),
               spreadRadius: 1,
               blurRadius: 10,
               offset: const Offset(0, 1),
@@ -273,38 +294,48 @@ class _HomePageState extends State<HomePage> with RouteAware {
     );
   }
 
-  Widget _buildCategoriesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Kategori',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+  Widget _buildCategoriesSection(Size size) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
+        ],
+      ),
+      height: 220,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+        child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 1.2,
+          ),
+          itemCount: menuIcon.length,
+          itemBuilder: (context, index) {
+            final icon = menuIcon[index];
+            return _buildCategoryItem(
+              icon.image,
+              icon.text,
+              () {
+                Get.to(() => const ProductScreen(), arguments: icon.text);
+              },
+            );
+          },
         ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildCategoryItem('assets/img/necklace.png', 'Kalung', () {
-            }),
-            _buildCategoryItem('assets/img/bracelet.png', 'Gelang', () {
-            }),
-            _buildCategoryItem('assets/img/ring.png', 'Cincin', () {
-            }),
-            _buildCategoryItem('assets/img/earrings.png', 'Anting', () {
-            }),
-            _buildCategoryItem('assets/img/more.png', 'Lihat Semua', () {
-            }),
-          ],
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildBestSellerSection() {
+
+  Widget _buildBestSellerSection(Size size) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -329,30 +360,41 @@ class _HomePageState extends State<HomePage> with RouteAware {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: size.height * 0.01),
         Obx(() {
           if (_controller.isLoading.value) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
-          return GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.85,
-            children: _controller.productList.take(4).map((product) {
-              return _buildProductCard(
-                product.id,
-                product.name,
-                'Rp ${product.price}',
-                product.image,
-                '${product.sold} Terjual',
-                product.category,
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              // Hitung mainAxisExtent berdasarkan tinggi layar atau elemen lainnya
+              final double mainAxisExtent = constraints.maxWidth / 2 + 30;
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 12,
+                  mainAxisExtent: mainAxisExtent,
+                ),
+                itemCount: _controller.productListTopSold.length,
+                itemBuilder: (context, index) {
+                  final product = _controller.productListTopSold[index];
+                  return _buildProductCard(
+                    product.id,
+                    product.name,
+                    'Rp ${product.price}',
+                    product.image,
+                    '${product.sold} Terjual',
+                    product.category,
+                  );
+                },
               );
-            }).toList(),
+            },
           );
         }),
       ],
@@ -360,7 +402,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
   }
 
   Widget _buildCategoryItem(
-      String imagePath, String label, VoidCallback onTap) {
+      String imagePath, String label, VoidCallback onTap,) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const ProductScreen(), arguments: label);
@@ -413,9 +455,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
   ) {
     return GestureDetector(
       onTap: () {
-        Get.toNamed(RoutesNamed.productDetail, arguments: id)?.then((_) {
-          _loadCartItemCount();
-        });
+        Get.toNamed(RoutesNamed.productDetail, arguments: id);
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
@@ -427,6 +467,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.min,
             children: [
               ClipRRect(
@@ -446,7 +487,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Text(
@@ -458,7 +498,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Row(
@@ -481,7 +520,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
                   ],
                 ),
               ),
-              const SizedBox(height: 6),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Row(

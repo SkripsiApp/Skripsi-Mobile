@@ -10,6 +10,7 @@ class ProductController extends GetxController {
   var isLoading = false.obs;
   var isLoadingMore = false.obs;
   var productList = <Product>[].obs;
+  var productListTopSold = <Product>[].obs;
   var currentPage = 1.obs;
   var lastPage = 1.obs;
   var productDetail = Rxn<Product>();
@@ -17,6 +18,7 @@ class ProductController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    fetchProductsTopSold();
     fetchProducts();
   }
 
@@ -35,6 +37,38 @@ class ProductController extends GetxController {
 
       if (response.status) {
         productList.addAll(response.data);
+        currentPage.value = response.pagination.currentPage;
+        lastPage.value = response.pagination.lastPage;
+      } else {
+        CustomDialog.showError(
+          title: 'Gagal',
+          message: response.message,
+          onConfirm: () {
+            Get.back();
+          },
+        );
+      }
+    } finally {
+      isLoading.value = false;
+      isLoadingMore.value = false;
+    }
+  }
+
+  Future<void> fetchProductsTopSold({String? search, int? page}) async {
+    try {
+      if (page == null) {
+        isLoading.value = true;
+        productListTopSold.clear();
+        currentPage.value = 1;
+      } else {
+        isLoadingMore.value = true;
+      }
+
+      final response =
+          await _apiService.getProductsTopSold(search: search, page: page ?? 1);
+
+      if (response.status) {
+        productListTopSold.assignAll(response.data);
         currentPage.value = response.pagination.currentPage;
         lastPage.value = response.pagination.lastPage;
       } else {
@@ -113,7 +147,6 @@ class ProductController extends GetxController {
       return 0;
     }
   }
-
 
   void loadMoreProducts() {
     if (currentPage.value < lastPage.value && !isLoadingMore.value) {

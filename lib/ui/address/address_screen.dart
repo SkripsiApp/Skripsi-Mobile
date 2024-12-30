@@ -1,21 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart' as root_bundle;
+import 'dart:convert';
 import 'package:skripsi_app/controller/address_controller.dart';
 import 'package:skripsi_app/model/address_model.dart';
 
-class AddressScreen extends StatelessWidget {
-  AddressScreen({super.key});
+class AddressScreen extends StatefulWidget {
+  const AddressScreen({super.key});
 
+  @override
+  State<AddressScreen> createState() => _AddressScreenState();
+}
+
+class _AddressScreenState extends State<AddressScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();
-  final _cityController = TextEditingController();
   final _subdistrictController = TextEditingController();
   final _zipCodeController = TextEditingController();
   final _phoneController = TextEditingController();
 
   final AddressController _addressControllers = Get.put(AddressController());
+
+  String? selectedProvince;
+  String? selectedCity;
+  List<String> cityList = [];
+
+  Map<String, List<String>> citiesByProvince = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCitiesData();
+  }
+
+  Future<void> _loadCitiesData() async {
+    // Load the JSON file from assets
+    final String response =
+        await root_bundle.rootBundle.loadString('assets/data/city.json');
+    final Map<String, dynamic> data = jsonDecode(response);
+
+    setState(() {
+      citiesByProvince = data.map<String, List<String>>((key, value) {
+        return MapEntry(key, List<String>.from(value));
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,12 +96,9 @@ class AddressScreen extends StatelessWidget {
                           value == null || value.isEmpty ? 'Wajib diisi' : null,
                     ),
                     const SizedBox(height: 24),
-                    _buildInputField(
-                      'Kota / Kabupaten',
-                      controller: _cityController,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
-                    ),
+                    _buildProvinceDropdown(),
+                    const SizedBox(height: 24),
+                    _buildCityDropdown(),
                     const SizedBox(height: 24),
                     _buildInputField(
                       'Kecamatan',
@@ -134,6 +162,7 @@ class AddressScreen extends StatelessWidget {
           maxLines: maxLines,
           keyboardType: keyboardType,
           validator: validator,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
@@ -156,6 +185,105 @@ class AddressScreen extends StatelessWidget {
       ],
     );
   }
+
+  Widget _buildProvinceDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Pilih Provinsi',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.lightBlue),
+            ),
+          ),
+          value: selectedProvince,
+          items: citiesByProvince.keys
+              .map((province) => DropdownMenuItem<String>(
+                    value: province,
+                    child: Text(province, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedProvince = value;
+              selectedCity = null; // Reset city selection
+              cityList = citiesByProvince[value!] ?? [];
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCityDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Pilih Kota / Kabupaten',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.lightBlue),
+            ),
+          ),
+          value: selectedCity,
+          items: cityList
+              .map((city) => DropdownMenuItem<String>(
+                    value: city,
+                    child: Text(city, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedCity = value;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildAddAddressButton() {
     return Container(
@@ -181,7 +309,7 @@ class AddressScreen extends StatelessWidget {
                       final address = AddressModel(
                         name: _nameController.text.trim(),
                         address: _addressController.text.trim(),
-                        city: _cityController.text.trim(),
+                        city: selectedCity ?? '',
                         subdistric: _subdistrictController.text.trim(),
                         zipCode: _zipCodeController.text.trim(),
                         phone: _phoneController.text.trim(),

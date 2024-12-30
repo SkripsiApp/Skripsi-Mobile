@@ -77,13 +77,20 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                     ),
                     const SizedBox(height: 16),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          product.name,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Wrap(
+                            direction: Axis.horizontal,
+                            children: [
+                              Text(
+                                product.name,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Container(
@@ -96,7 +103,9 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                           child: Text(
                             product.category,
                             style: const TextStyle(
-                                color: Colors.white, fontSize: 12),
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ],
@@ -484,7 +493,8 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                                       ],
                                     ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 6, horizontal: 12),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF3ABEF9),
                                         borderRadius: BorderRadius.circular(8),
